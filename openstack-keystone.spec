@@ -1,4 +1,12 @@
+
+#
+# This snapshot corresponds to the 2011.3 tag in git
+#
 %global milestone d4
+%global git_revno 1213
+%global snapdate 20110930
+%global snaptag ~%{milestone}~%{snapdate}.%{git_revno}
+%global tarballversion 1.0
 
 Name:           openstack-keystone
 Version:        2011.3
@@ -7,7 +15,7 @@ Summary:        OpenStack Identity Service
 
 License:        ASL 2.0
 URL:            http://keystone.openstack.org/
-Source0:        https://launchpad.net/keystone/diablo/2011.3/keystone-%{version}.tar.gz
+Source0:        http://keystone.openstack.org/tarballs/keystone-%{tarballversion}%{snaptag}.tar.gz
 Source1:        openstack-keystone.logrotate
 Source2:        openstack-keystone.init
 
@@ -46,7 +54,7 @@ Swift and Nova which are:
 
 
 %prep
-%setup -q -n keystone-%{version}
+%setup -q -n keystone-%{tarballversion}
 
 sed -i 's|\(log_file = \)\(keystone.log\)|\1%{_localstatedir}/log/keystone/\2|' etc/keystone.conf
 sed -i 's|\(sql_connection = sqlite:///\)keystone.db|\1%{_sharedstatedir}/keystone/keystone.sqlite|' etc/keystone.conf
@@ -65,11 +73,9 @@ find examples -type f -exec chmod 0664 \{\} \;
 %install
 %{__python} setup.py install -O1 --skip-build --root %{buildroot}
 
-# Install initscripts for Nova services
-install -p -D -m 755 %{SOURCE2} %{buildroot}%{_initrddir}/openstack-keystone
-
 install -p -D -m 644 etc/keystone.conf %{buildroot}%{_sysconfdir}/keystone/keystone.conf
 install -p -D -m 644 %{SOURCE1} %{buildroot}%{_sysconfdir}/logrotate.d/openstack-keystone
+install -p -D -m 755 %{SOURCE2} %{buildroot}%{_initrddir}/openstack-keystone
 install -d -m 755 %{buildroot}%{_sharedstatedir}/keystone
 install -d -m 755 %{buildroot}%{_localstatedir}/log/keystone
 
@@ -118,12 +124,12 @@ fi
 %doc examples
 %{python_sitelib}/*
 %{_bindir}/keystone*
+%{_initrddir}/openstack-keystone
 %dir %{_sysconfdir}/keystone
 %config(noreplace) %{_sysconfdir}/keystone/keystone.conf
 %config(noreplace) %{_sysconfdir}/logrotate.d/openstack-keystone
 %dir %attr(-, keystone, keystone) %{_sharedstatedir}/keystone
 %dir %attr(-, keystone, keystone) %{_localstatedir}/log/keystone
-%{_initrddir}/openstack-keystone
 
 %changelog
 * Fri Oct 21 2011 David Busby <oneiroi@fedoraproject.com> - 2011.3-1
