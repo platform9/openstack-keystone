@@ -1,27 +1,28 @@
 
 #
-# This snapshot corresponds to the 2011.3 tag in git
+# This is stable/diablo 2011.3.1 release
 #
-%global milestone d4
-%global git_revno 1213
-%global snapdate 20110930
+%global milestone e2
+%global git_revno 1262
+%global snapdate 20111118
 %global snaptag ~%{milestone}~%{snapdate}.%{git_revno}
-%global tarballversion 1.0
 
 Name:           openstack-keystone
-Version:        2011.3
-Release:        1%{?dist}
+Version:        2011.3.1
+Release:        2%{?dist}
 Summary:        OpenStack Identity Service
 
 License:        ASL 2.0
 URL:            http://keystone.openstack.org/
-Source0:        http://keystone.openstack.org/tarballs/keystone-%{tarballversion}%{snaptag}.tar.gz
+Source0:        http://keystone.openstack.org/tarballs/keystone-%{version}%{snaptag}.tar.gz
 Source1:        openstack-keystone.logrotate
 Source2:        openstack-keystone.init
 
 BuildArch:      noarch
 BuildRequires:  python2-devel
 BuildRequires:  python-sphinx10
+BuildRequires:  python-iniparse
+BuildRequires:  systemd-units
 
 Requires:       python-eventlet
 Requires:       python-httplib2
@@ -40,24 +41,39 @@ Requires:	python-passlib
 Requires(post):   chkconfig
 Requires(postun): initscripts
 Requires(preun):  chkconfig
+Requires(postun): python-iniparse
 Requires(pre):    shadow-utils
 
 %description
-Keystone is a proposed independent authentication service for
-OpenStack (http://www.openstack.org).
+Keystone is a Python implementation of the OpenStack
+(http://www.openstack.org) identity service API.
 
-This initial proof of concept aims to address the current use cases in
-Swift and Nova which are:
-
-* REST-based, token auth for Swift
-* many-to-many relationship between identity and tenant for Nova.
+Services included are:
+* Keystone    - identity store and authentication service
+* Auth_Token  - WSGI middleware that can be used to handle token auth protocol
+                (WSGI or remote proxy)
+* Auth_Basic  - Stub for WSGI middleware that will be used to handle basic auth
+* Auth_OpenID - Stub for WSGI middleware that will be used to handle openid
+                auth protocol
+* RemoteAuth  - WSGI middleware that can be used in services (like Swift, Nova,
+                and Glance) when Auth middleware is running remotely
 
 
 %prep
-%setup -q -n keystone-%{tarballversion}
+%setup -q -n keystone-%{version}
 
-sed -i 's|\(log_file = \)\(keystone.log\)|\1%{_localstatedir}/log/keystone/\2|' etc/keystone.conf
-sed -i 's|\(sql_connection = sqlite:///\)keystone.db|\1%{_sharedstatedir}/keystone/keystone.sqlite|' etc/keystone.conf
+# log_file is ignored, use log_dir instead
+# https://bugs.launchpad.net/keystone/+bug/844959/comments/3
+python -c 'import iniparse
+conf=iniparse.ConfigParser()
+conf.read("etc/keystone.conf")
+if conf.has_option("DEFAULT", "log_file"):
+    conf.remove_option("DEFAULT", "log_file")
+conf.set("DEFAULT", "log_dir", "%{_localstatedir}/log/keystone")
+conf.set("keystone.backends.sqlalchemy", "sql_connection", "sqlite:///%{_sharedstatedir}/keystone/keystone.sqlite")
+fp=open("etc/keystone.conf","w")
+conf.write(fp)
+fp.close()'
 
 find . \( -name .gitignore -o -name .placeholder \) -delete
 find keystone -name \*.py -exec sed -i '/\/usr\/bin\/env python/d' {} \;
@@ -115,11 +131,22 @@ fi
 /bin/systemctl daemon-reload >/dev/null 2>&1 || :
 if [ $1 -ge 1 ] ; then
     # Package upgrade, not uninstall
+    # fix conf for LP844959
+    python -c 'import iniparse
+conf_file="%{_sysconfdir}/keystone/keystone.conf"
+conf=iniparse.ConfigParser()
+conf.read(conf_file)
+if not conf.has_option("DEFAULT", "log_dir"):
+    conf.set("DEFAULT", "log_dir", "%{_localstatedir}/log/keystone")
+    fp=open(conf_file,"w")
+    conf.write(fp)
+    fp.close()'
     /bin/systemctl try-restart openstack-keystone.service >/dev/null 2>&1 || :
 fi
 
 %files
 %doc README.md
+%doc LICENSE
 %doc doc/build/html
 %doc examples
 %{python_sitelib}/*
@@ -132,6 +159,15 @@ fi
 %dir %attr(-, keystone, keystone) %{_localstatedir}/log/keystone
 
 %changelog
+* Thu Nov 24 2011 Alan Pevec <apevec@redhat.com> 2011.3.1-2
+- include LICENSE, update package description from README.md
+
+* Mon Nov 21 2011 Alan Pevec <apevec@redhat.com> 2011.3.1-1
+- Update to 2011.3.1 stable/diablo release
+
+* Fri Nov 11 2011 Alan Pevec <apevec@redhat.com> 2011.3-2
+- Update to the latest stable/diablo snapshot
+
 * Fri Oct 21 2011 David Busby <oneiroi@fedoraproject.com> - 2011.3-1
 - Update to Diablo Final d3
 
