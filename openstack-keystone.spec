@@ -22,7 +22,6 @@ BuildArch:      noarch
 BuildRequires:  python2-devel
 BuildRequires:  python-sphinx10
 BuildRequires:  python-iniparse
-BuildRequires:  systemd-units
 
 Requires:       python-eventlet
 Requires:       python-httplib2
