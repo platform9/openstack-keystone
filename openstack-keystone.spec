@@ -93,6 +93,7 @@ install -p -D -m 644 %{SOURCE1} %{buildroot}%{_sysconfdir}/logrotate.d/openstack
 install -p -D -m 755 %{SOURCE2} %{buildroot}%{_initrddir}/openstack-keystone
 install -d -m 755 %{buildroot}%{_sharedstatedir}/keystone
 install -d -m 755 %{buildroot}%{_localstatedir}/log/keystone
+install -d -m 755 %{buildroot}%{_localstatedir}/run/keystone
 
 rm -rf %{buildroot}%{python_sitelib}/tools
 rm -rf %{buildroot}%{python_sitelib}/examples
@@ -156,6 +157,7 @@ fi
 %config(noreplace) %{_sysconfdir}/logrotate.d/openstack-keystone
 %dir %attr(-, keystone, keystone) %{_sharedstatedir}/keystone
 %dir %attr(-, keystone, keystone) %{_localstatedir}/log/keystone
+%dir %attr(-, keystone, keystone) %{_localstatedir}/run/keystone
 
 %changelog
 * Thu Nov 24 2011 Alan Pevec <apevec@redhat.com> 2011.3.1-2
