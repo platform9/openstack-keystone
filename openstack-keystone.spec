@@ -9,7 +9,7 @@
 
 Name:           openstack-keystone
 Version:        2011.3.1
-Release:        2%{?dist}
+Release:        3%{?dist}
 Summary:        OpenStack Identity Service
 
 License:        ASL 2.0
@@ -17,11 +17,15 @@ URL:            http://keystone.openstack.org/
 Source0:        http://keystone.openstack.org/tarballs/keystone-%{version}%{snaptag}.tar.gz
 Source1:        openstack-keystone.logrotate
 Source2:        openstack-keystone.init
+Patch0:         openstack-keystone-newdeps.patch
 
 BuildArch:      noarch
 BuildRequires:  python2-devel
 BuildRequires:  python-sphinx10
+BuildRequires:  python-sqlalchemy0.7
+BuildRequires:  python-webob1.0
 BuildRequires:  python-iniparse
+
 
 Requires:       python-eventlet
 Requires:       python-httplib2
@@ -32,10 +36,11 @@ Requires:       python-paste
 Requires:       python-paste-deploy
 Requires:       python-paste-script
 Requires:       python-routes
-Requires:       python-sqlalchemy
+Requires:       python-sqlalchemy0.7
 Requires:       python-sqlite2
-Requires:       python-webob
-Requires:	python-passlib
+Requires:       python-webob1.0
+Requires:       python-passlib
+Requires:       python-setuptools
 
 Requires(post):   chkconfig
 Requires(postun): initscripts
@@ -60,6 +65,7 @@ Services included are:
 
 %prep
 %setup -q -n keystone-%{version}
+%patch0 -p1 -b .newdeps
 
 # log_file is ignored, use log_dir instead
 # https://bugs.launchpad.net/keystone/+bug/844959/comments/3
