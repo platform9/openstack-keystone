@@ -18,6 +18,8 @@ Source0:        http://keystone.openstack.org/tarballs/keystone-%{version}%{snap
 Source1:        openstack-keystone.logrotate
 Source2:        openstack-keystone.init
 Patch0:         openstack-keystone-newdeps.patch
+Patch1:         openstack-keystone-docmod.patch
+Patch2:         openstack-keystone-nonet.patch
 
 BuildArch:      noarch
 BuildRequires:  python2-devel
@@ -66,6 +68,8 @@ Services included are:
 %prep
 %setup -q -n keystone-%{version}
 %patch0 -p1 -b .newdeps
+%patch1 -p1 -b .docmod
+%patch2 -p1 -b .nonet
 
 # log_file is ignored, use log_dir instead
 # https://bugs.launchpad.net/keystone/+bug/844959/comments/3
@@ -82,10 +86,6 @@ fp.close()'
 
 find . \( -name .gitignore -o -name .placeholder \) -delete
 find keystone -name \*.py -exec sed -i '/\/usr\/bin\/env python/d' {} \;
-
-# change sphinx-build to sphinx-1.0-build in makefiles
-#sed -i 's|sphinx-build|sphinx-1\.0-build|' build/lib/doc/Makefile
-sed -i 's|sphinx-build|sphinx-1\.0-build|' doc/Makefile
 
 %build
 %{__python} setup.py build
@@ -107,9 +107,7 @@ rm -rf %{buildroot}%{python_sitelib}/doc
 
 # docs generation requires everything to be installed first
 export PYTHONPATH="$( pwd ):$PYTHONPATH"
-pushd doc
-make
-popd
+make SPHINXBUILD=sphinx-1.0-build -C doc
 # Fix hidden-file-or-dir warnings
 rm -fr doc/build/html/.doctrees doc/build/html/.buildinfo
 
@@ -166,6 +164,11 @@ fi
 %dir %attr(-, keystone, keystone) %{_localstatedir}/run/keystone
 
 %changelog
+* Wed Nov 30 2011 Alan Pevec <apevec@redhat.com> 2011.3.1-3
+- Use updated parallel install versions of epel packages (pbrady)
+- Ensure the docs aren't built with the system glance module (pbrady)
+- Ensure we don't access the net when building docs (pbrady)
+
 * Thu Nov 24 2011 Alan Pevec <apevec@redhat.com> 2011.3.1-2
 - include LICENSE, update package description from README.md
 
