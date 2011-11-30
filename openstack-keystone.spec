@@ -47,6 +47,7 @@ Requires:       python-setuptools
 Requires(post):   chkconfig
 Requires(postun): initscripts
 Requires(preun):  chkconfig
+Requires(preun):  initscripts
 Requires(postun): python-iniparse
 Requires(pre):    shadow-utils
 
@@ -121,14 +122,23 @@ exit 0
 %post
 if [ $1 -eq 1 ] ; then
     # Initial installation
+%if 0%{?fedora} >= 15
     /bin/systemctl daemon-reload >/dev/null 2>&1 || :
+%else
+    /sbin/chkconfig --add openstack-keystone
+%endif
 fi
 
 %preun
 if [ $1 -eq 0 ] ; then
     # Package removal, not upgrade
+%if 0%{?fedora} >= 15
     /bin/systemctl --no-reload disable openstack-keystone.service > /dev/null 2>&1 || :
     /bin/systemctl stop openstack-keystone.service > /dev/null 2>&1 || :
+%else
+    /sbin/service openstack-keystone stop >/dev/null 2>&1
+    /sbin/chkconfig --del openstack-keystone
+%endif
 fi
 
 %postun
@@ -145,7 +155,11 @@ if not conf.has_option("DEFAULT", "log_dir"):
     fp=open(conf_file,"w")
     conf.write(fp)
     fp.close()'
+%if 0%{?fedora} >= 15
     /bin/systemctl try-restart openstack-keystone.service >/dev/null 2>&1 || :
+%else
+    /sbin/service openstack-keystone condrestart >/dev/null 2>&1 || :
+%endif
 fi
 
 %files
