@@ -9,7 +9,7 @@
 
 Name:           openstack-keystone
 Version:        2011.3.1
-Release:        3%{?dist}
+Release:        4%{?dist}
 Summary:        OpenStack Identity Service
 
 License:        ASL 2.0
@@ -178,6 +178,9 @@ fi
 %dir %attr(-, keystone, keystone) %{_localstatedir}/run/keystone
 
 %changelog
+* Sun Dec 04 2011 Alan Pevec <apevec@redhat.com> 2011.3.1-4
+- fix initscript for keystone
+
 * Wed Nov 30 2011 Alan Pevec <apevec@redhat.com> 2011.3.1-3
 - Use updated parallel install versions of epel packages (pbrady)
 - Ensure the docs aren't built with the system glance module (pbrady)
