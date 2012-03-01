@@ -11,7 +11,7 @@
 . /etc/rc.d/init.d/functions
 
 prog=keystone
-exec="/usr/bin/$prog"
+exec="/usr/bin/$prog-all"
 config="/etc/$prog/$prog.conf"
 pidfile="/var/run/$prog/$prog.pid"
 

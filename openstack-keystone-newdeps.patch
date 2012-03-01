@@ -1,9 +1,6 @@
---- keystone-2011.3.1/keystone/__init__.py.orig	2011-11-25 12:27:19.920880470 +0100
-+++ keystone-2011.3.1/keystone/__init__.py	2011-11-25 12:27:49.801976645 +0100
-@@ -12,6 +12,29 @@
- # See the License for the specific language governing permissions and
- # limitations under the License.
- 
+--- keystone-2012.1/keystone/__init__.py.newdeps	2012-02-29 11:16:06.000000000 +0100
++++ keystone-2012.1/keystone/__init__.py	2012-03-01 22:42:08.546503618 +0100
+@@ -0,0 +1,21 @@
 +import sys
 +import pkg_resources
 +
@@ -25,8 +22,3 @@
 +
 +replace_dist("WebOb >= 1.0")
 +replace_dist("SQLAlchemy >= 0.6.3")
-+
-+
- import gettext
- 
- 
