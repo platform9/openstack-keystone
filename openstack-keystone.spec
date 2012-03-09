@@ -23,12 +23,6 @@ Source3:        openstack-keystone-db-setup
 Source4:        openstack-config-set
 Source5:        sample_data.sh
 
-# https://review.openstack.org/4658
-# https://review.openstack.org/5049
-Patch1:         sample_data.sh-catalog-backend.patch
-# https://review.openstack.org/4997
-Patch2:         add-more-default-catalog-templates.patch
-
 BuildArch:      noarch
 BuildRequires:  python2-devel
 BuildRequires:  python-sphinx >= 1.1.2
@@ -81,8 +75,6 @@ This package contains the Keystone Python library.
 
 %prep
 %setup -q -n keystone-%{version}
-%patch1 -p1
-%patch2 -p1
 
 # change default configuration
 %{SOURCE4} etc/keystone.conf DEFAULT log_file %{_localstatedir}/log/keystone/keystone.log
