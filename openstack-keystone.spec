@@ -1,6 +1,7 @@
 #
 # This is 2012.1 essex-4 milestone snapshot
 #
+%global with_doc 1
 %global release_name essex
 %global release_letter e
 %global milestone 4
@@ -25,7 +26,7 @@ Source5:        sample_data.sh
 
 BuildArch:      noarch
 BuildRequires:  python2-devel
-BuildRequires:  python-sphinx >= 1.1.2
+BuildRequires:  python-sphinx >= 1.0.7
 BuildRequires:  python-iniparse
 BuildRequires:  systemd-units
 
@@ -115,13 +116,15 @@ install -p -D -m 755 %{SOURCE4} %{buildroot}%{_bindir}/openstack-config-set
 install -d -m 755 %{buildroot}%{_sharedstatedir}/keystone
 install -d -m 755 %{buildroot}%{_localstatedir}/log/keystone
 
+%if 0%{?with_doc}
 # docs generation requires everything to be installed first
 export PYTHONPATH="$( pwd ):$PYTHONPATH"
-pushd docs
+pushd doc
 make html
 popd
 # Fix hidden-file-or-dir warnings
-rm -fr docs/build/html/.doctrees docs/build/html/.buildinfo
+rm -fr doc/build/html/.doctrees doc/build/html/.buildinfo
+%endif
 
 %pre
 getent group keystone >/dev/null || groupadd -r keystone
@@ -153,7 +156,9 @@ fi
 %files
 %doc LICENSE
 %doc README.rst
+%if 0%{?with_doc}
 %doc docs/build/html
+%endif
 %{_bindir}/keystone-all
 %{_bindir}/keystone-manage
 %{_bindir}/openstack-config-set
