@@ -110,6 +110,7 @@ rm -fr %{buildroot}%{python_sitelib}/run_tests.*
 install -d -m 755 %{buildroot}%{_sysconfdir}/keystone
 install -p -D -m 640 etc/keystone.conf %{buildroot}%{_sysconfdir}/keystone/keystone.conf
 install -p -D -m 640 etc/default_catalog.templates %{buildroot}%{_sysconfdir}/keystone/default_catalog.templates
+install -p -D -m 640 etc/policy.json %{buildroot}%{_sysconfdir}/keystone/policy.json
 install -p -D -m 644 %{SOURCE1} %{buildroot}%{_sysconfdir}/logrotate.d/openstack-keystone
 install -p -D -m 644 %{SOURCE2} %{buildroot}%{_unitdir}/openstack-keystone.service
 # Install database setup helper script.
@@ -170,6 +171,7 @@ fi
 %dir %{_sysconfdir}/keystone
 %config(noreplace) %attr(640, root, keystone) %{_sysconfdir}/keystone/keystone.conf
 %config(noreplace) %attr(640, root, keystone) %{_sysconfdir}/keystone/default_catalog.templates
+%config(noreplace) %attr(-, keystone, keystone) %{_sysconfdir}/keystone/policy.json
 %config(noreplace) %{_sysconfdir}/logrotate.d/openstack-keystone
 %dir %attr(-, keystone, keystone) %{_sharedstatedir}/keystone
 %dir %attr(-, keystone, keystone) %{_localstatedir}/log/keystone
@@ -181,6 +183,9 @@ fi
 %{python_sitelib}/keystone-%{version}-*.egg-info
 
 %changelog
+* Thu Mar 08 2012 Dan Prince <dprince@redhat.com> 2012.1-0.10.e4
+- install etc/policy.json config file
+
 * Thu Mar 08 2012 Alan Pevec <apevec@redhat.com> 2012.1-0.10.e4
 - change default catalog backend to sql rhbz#800704
 - update sample-data script
