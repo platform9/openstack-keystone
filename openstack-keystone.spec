@@ -1,22 +1,24 @@
 #
-# This is 2012.1 essex rc1
+# This is 2012.1 essex release
 #
 %global release_name essex
 %global release_letter rc
-%global milestone 1
-%global snapdate 20120323
-%global git_revno r2186
+%global milestone 2
+%global snapdate 20120404
+%global git_revno r2201
 
 %global snaptag ~%{release_letter}%{milestone}~%{snapdate}.%{git_revno}
 
 Name:           openstack-keystone
 Version:        2012.1
-Release:        0.12.%{release_letter}%{milestone}%{?dist}
+Release:        1%{?dist}
+#Release:       0.1.%{release_letter}%{milestone}%{?dist}
 Summary:        OpenStack Identity Service
 
 License:        ASL 2.0
 URL:            http://keystone.openstack.org/
-Source0:        http://launchpad.net/keystone/%{release_name}/%{release_name}-%{milestone}/+download/keystone-%{version}~%{release_letter}%{milestone}.tar.gz
+Source0:        http://launchpad.net/keystone/%{release_name}/+download/keystone-%{version}.tar.gz
+#Source0:        http://launchpad.net/keystone/%{release_name}/%{release_name}-%{milestone}/+download/keystone-%{version}~%{release_letter}%{milestone}.tar.gz
 #Source0:        http://keystone.openstack.org/tarballs/keystone-%{version}%{snaptag}.tar.gz
 Source1:        openstack-keystone.logrotate
 Source2:        openstack-keystone.init
@@ -198,8 +200,14 @@ fi
 %{python_sitelib}/keystone-%{version}-*.egg-info
 
 %changelog
+* Thu Apr 05 2012 Alan Pevec <apevec@redhat.com> 2012.1-1
+- Essex release
+
+* Wed Apr 04 2012 Alan Pevec <apevec@redhat.com> 2012.1-0.13.rc2
+- essex rc2
+
 * Sat Mar 24 2012 Alan Pevec <apevec@redhat.com> 2012.1-0.12.rc1
-- upate to final essex rc1
+- update to final essex rc1
 
 * Wed Mar 21 2012 Alan Pevec <apevec@redhat.com> 2012.1-0.11.rc1
 - essex rc1
