@@ -11,7 +11,7 @@
 
 Name:           openstack-keystone
 Version:        2012.1
-Release:        1%{?dist}
+Release:        2%{?dist}
 #Release:       0.1.%{release_letter}%{milestone}%{?dist}
 Summary:        OpenStack Identity Service
 
@@ -65,10 +65,10 @@ Requires:       python-lxml
 Requires:       python-memcached
 Requires:       python-migrate
 Requires:       python-paste
-Requires:       python-paste-deploy
+Requires:       python-paste-deploy1.5
 Requires:       python-paste-script
 Requires:       python-prettytable
-Requires:       python-routes
+Requires:       python-routes1.12
 Requires:       python-sqlalchemy0.7
 Requires:       python-webob1.0
 Requires:       python-passlib
@@ -200,6 +200,9 @@ fi
 %{python_sitelib}/keystone-%{version}-*.egg-info
 
 %changelog
+* Thu Apr 26 2012 Pádraig Brady <P@draigBrady.com> 2012.1-2
+- Use parallel installed versions of python-paste-deploy and python-routes
+
 * Thu Apr 05 2012 Alan Pevec <apevec@redhat.com> 2012.1-1
 - Essex release
 
