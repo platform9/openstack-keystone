@@ -25,15 +25,19 @@ Source2:        openstack-keystone.init
 Source3:        openstack-keystone-db-setup
 Source4:        openstack-config-set
 Source5:        openstack-keystone-sample-data
-# EPEL6: use web1.0 and sqlalchemy0.7
+
 Patch0:       openstack-keystone-newdeps.patch
 
 BuildArch:      noarch
+
 BuildRequires:  python2-devel
 BuildRequires:  python-sphinx10
+BuildRequires:  python-iniparse
+# These are required to build due to the requirements check added
 BuildRequires:  python-sqlalchemy0.7
 BuildRequires:  python-webob1.0
-BuildRequires:  python-iniparse
+BuildRequires:  python-paste-deploy1.5
+BuildRequires:  python-routes1.12
 
 Requires:       python-keystone = %{version}-%{release}
 Requires:       python-keystoneclient >= 2012.1-0.4.e4
