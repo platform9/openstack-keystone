@@ -1,6 +1,6 @@
 --- keystone-2012.1/keystone/__init__.py.newdeps	2012-02-29 11:16:06.000000000 +0100
 +++ keystone-2012.1/keystone/__init__.py	2012-03-01 22:42:08.546503618 +0100
-@@ -0,0 +1,28 @@
+@@ -0,0 +1,29 @@
 +import sys
 +import pkg_resources
 +
@@ -22,6 +22,7 @@
 +
 +replace_dist("WebOb >= 1.0")
 +replace_dist("SQLAlchemy >= 0.6.3")
++replace_dist("Routes >= 1.12.3")
 +
 +replace_dist("PasteDeploy >= 1.5.0")
 +# This hack is needed because replace_dist() results in
