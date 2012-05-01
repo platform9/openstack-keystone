@@ -2,7 +2,7 @@
 #
 # keystone  OpenStack Identity Service
 #
-# chkconfig:   - 20 80
+# chkconfig:   - 98 02
 # description: keystone works provide apis to  \
 #		* Authenticate users and provide a token \
 #		* Validate tokens

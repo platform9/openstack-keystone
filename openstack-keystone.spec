@@ -11,7 +11,7 @@
 
 Name:           openstack-keystone
 Version:        2012.1
-Release:        3%{?dist}
+Release:        4%{?dist}
 #Release:       0.1.%{release_letter}%{milestone}%{?dist}
 Summary:        OpenStack Identity Service
 
@@ -204,6 +204,9 @@ fi
 %{python_sitelib}/keystone-%{version}-*.egg-info
 
 %changelog
+* Tue May 01 2012 Pádraig Brady <P@draigBrady.com> 2012.1-4
+- Start the services later in the boot sequence
+
 * Sun Apr 29 2012 Pádraig Brady <P@draigBrady.com> 2012.1-3
 - Add the lookup for the parallel install of python-routes
 
