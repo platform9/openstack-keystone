@@ -64,8 +64,10 @@ Group:            Applications/System
 # python-keystone added in 2012.1-0.2.e3
 Conflicts:      openstack-keystone < 2012.1-0.2.e3
 
+# to pull middleware on yum update
+Requires:       python-keystone-auth-token = %{version}-%{release}
+
 Requires:       python-eventlet
-Requires:       python-iso8601
 Requires:       python-ldap
 Requires:       python-lxml
 Requires:       python-memcached
@@ -84,11 +86,33 @@ Keystone is a Python implementation of the OpenStack
 
 This package contains the Keystone Python library.
 
+%package -n     python-keystone-auth-token
+Summary:        Keystone Authentication Middleware.
+Group:          Applications/System
+# python-keystone-auth-token added in 2012.1-6.el6
+Conflicts:      python-keystone < 2012.1-6.el6
+
+Requires:       python-iso8601
+Requires:       python-memcached
+Requires:       python-webob
+
+%description -n   python-keystone-auth-token
+Keystone is a Python implementation of the OpenStack
+(http://www.openstack.org) identity service API.
+
+This package contains the Keystone Authentication Middleware.
+
 %prep
 %setup -q -n keystone-%{version}
 %patch0 -p1 -b .newdeps
 
 %patch0001 -p1
+
+find . \( -name .gitignore -o -name .placeholder \) -delete
+find keystone -name \*.py -exec sed -i '/\/usr\/bin\/env python/d' {} \;
+
+
+%build
 # change default configuration
 openstack-config --set etc/keystone.conf DEFAULT log_file %{_localstatedir}/log/keystone/keystone.log
 openstack-config --set etc/keystone.conf sql connection mysql://keystone:keystone@localhost/keystone
@@ -98,10 +122,6 @@ openstack-config --set etc/keystone.conf identity driver keystone.identity.backe
 openstack-config --set etc/keystone.conf token driver keystone.token.backends.sql.Token
 openstack-config --set etc/keystone.conf ec2 driver keystone.contrib.ec2.backends.sql.Ec2
 
-find . \( -name .gitignore -o -name .placeholder \) -delete
-find keystone -name \*.py -exec sed -i '/\/usr\/bin\/env python/d' {} \;
-
-%build
 %{__python} setup.py build
 
 %install
@@ -132,9 +152,10 @@ make SPHINXAPIDOC=echo SPHINXBUILD=sphinx-1.0-build -C doc html
 rm -fr doc/build/html/.doctrees doc/build/html/.buildinfo
 
 %pre
-getent group keystone >/dev/null || groupadd -r keystone
+# 163:163 for keystone (openstack-keystone) - rhbz#752842
+getent group keystone >/dev/null || groupadd -r --gid 163 keystone
 getent passwd keystone >/dev/null || \
-useradd -r -g keystone -d %{_sharedstatedir}/keystone -s /sbin/nologin \
+useradd --uid 163 -r -g keystone -d %{_sharedstatedir}/keystone -s /sbin/nologin \
 -c "OpenStack Keystone Daemons" keystone
 exit 0
 
@@ -194,10 +215,19 @@ fi
 %defattr(-,root,root,-)
 %doc LICENSE
 %{python_sitelib}/keystone
+%exclude %{python_sitelib}/keystone/middleware/auth_token.py*
 %{python_sitelib}/keystone-%{version}-*.egg-info
+
+%files -n python-keystone-auth-token
+%defattr(-,root,root,-)
+%doc LICENSE
+%dir %{python_sitelib}/keystone
+%{python_sitelib}/keystone/middleware/auth_token.py*
 
 %changelog
 * Tue May 29 2012 Alan Pevec <apevec@redhat.com> 2012.1-6
+- python-keystone-auth-token subpackage (rhbz#824034)
+- use reserved user id for keystone (rhbz#752842)
 - fix paste.deploy dependency (rhbz#826120)
 
 * Mon May 21 2012 Alan Pevec <apevec@redhat.com> 2012.1-5
