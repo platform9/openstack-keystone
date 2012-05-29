@@ -11,7 +11,7 @@
 
 Name:           openstack-keystone
 Version:        2012.1
-Release:        5%{?dist}
+Release:        6%{?dist}
 #Release:       0.1.%{release_letter}%{milestone}%{?dist}
 Summary:        OpenStack Identity Service
 
@@ -197,6 +197,9 @@ fi
 %{python_sitelib}/keystone-%{version}-*.egg-info
 
 %changelog
+* Tue May 29 2012 Alan Pevec <apevec@redhat.com> 2012.1-6
+- fix paste.deploy dependency (rhbz#826120)
+
 * Mon May 21 2012 Alan Pevec <apevec@redhat.com> 2012.1-5
 - Sync up with Essex stable branch
 - Remove dependencies no loner needed by Essex
