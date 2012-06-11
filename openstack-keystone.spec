@@ -11,7 +11,7 @@
 
 Name:           openstack-keystone
 Version:        2012.1
-Release:        6%{?dist}
+Release:        7%{?dist}
 #Release:       0.1.%{release_letter}%{milestone}%{?dist}
 Summary:        OpenStack Identity Service
 
@@ -30,6 +30,11 @@ Patch0:       openstack-keystone-newdeps.patch
 # patches_base=2012.1
 #
 Patch0001: 0001-Make-import_nova_auth-only-create-roles-which-don-t-.patch
+Patch0002: 0002-Fix-test-env-for-the-stable-branch.patch
+Patch0003: 0003-Corrects-url-conversion-in-export_legacy_catalog.patch
+Patch0004: 0004-Invalidate-user-tokens-when-password-is-changed.patch
+Patch0005: 0005-Invalidate-user-tokens-when-a-user-is-disabled.patch
+Patch0006: 0006-Carrying-over-token-expiry-time-when-token-chaining.patch
 
 BuildArch:      noarch
 
@@ -107,6 +112,11 @@ This package contains the Keystone Authentication Middleware.
 %patch0 -p1 -b .newdeps
 
 %patch0001 -p1
+%patch0002 -p1
+%patch0003 -p1
+%patch0004 -p1
+%patch0005 -p1
+%patch0006 -p1
 
 find . \( -name .gitignore -o -name .placeholder \) -delete
 find keystone -name \*.py -exec sed -i '/\/usr\/bin\/env python/d' {} \;
@@ -169,6 +179,20 @@ if [ $1 -eq 1 ] ; then
 %endif
 fi
 
+%post -n python-keystone-auth-token
+# workaround for rhbz 824034#c14
+if [ ! -e %{python_sitelib}/keystone/__init__.py ]; then
+    > %{python_sitelib}/keystone/__init__.py
+fi
+if [ ! -e %{python_sitelib}/keystone/middleware/__init__.py ]; then
+    > %{python_sitelib}/keystone/middleware/__init__.py
+fi
+
+%triggerpostun -n python-keystone-auth-token -- python-keystone
+# edge case: removing python-keystone with overlapping files
+> %{python_sitelib}/keystone/__init__.py
+> %{python_sitelib}/keystone/middleware/__init__.py
+
 %preun
 if [ $1 -eq 0 ] ; then
     # Package removal, not upgrade
@@ -222,9 +246,18 @@ fi
 %defattr(-,root,root,-)
 %doc LICENSE
 %dir %{python_sitelib}/keystone
+%ghost %{python_sitelib}/keystone/__init__.py
+%dir %{python_sitelib}/keystone/middleware
+%ghost %{python_sitelib}/keystone/middleware/__init__.py
 %{python_sitelib}/keystone/middleware/auth_token.py*
 
 %changelog
+* Mon Jun 11 2012 Alan Pevec <apevec@redhat.com> 2012.1-7
+- Corrects url conversion in export_legacy_catalog (lp#994936)
+- Invalidate user tokens when password is changed (lp#996595)
+- Invalidate user tokens when a user is disabled (lp#997194)
+- Carrying over token expiry time when token chaining (lp#998185)
+
 * Tue May 29 2012 Alan Pevec <apevec@redhat.com> 2012.1-6
 - python-keystone-auth-token subpackage (rhbz#824034)
 - use reserved user id for keystone (rhbz#752842)
