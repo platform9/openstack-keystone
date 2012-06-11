@@ -11,7 +11,7 @@
 
 Name:           openstack-keystone
 Version:        2012.1
-Release:        3%{?dist}
+Release:        4%{?dist}
 #Release:       0.1.%{release_letter}%{milestone}%{?dist}
 Summary:        OpenStack Identity Service
 
@@ -28,6 +28,11 @@ Source5:        openstack-keystone-sample-data
 # patches_base=2012.1
 #
 Patch0001: 0001-Make-import_nova_auth-only-create-roles-which-don-t-.patch
+Patch0002: 0002-Fix-test-env-for-the-stable-branch.patch
+Patch0003: 0003-Corrects-url-conversion-in-export_legacy_catalog.patch
+Patch0004: 0004-Invalidate-user-tokens-when-password-is-changed.patch
+Patch0005: 0005-Invalidate-user-tokens-when-a-user-is-disabled.patch
+Patch0006: 0006-Carrying-over-token-expiry-time-when-token-chaining.patch
 
 BuildArch:      noarch
 BuildRequires:  python2-devel
@@ -97,6 +102,11 @@ This package contains the Keystone Authentication Middleware.
 %setup -q -n keystone-%{version}
 
 %patch0001 -p1
+%patch0002 -p1
+%patch0003 -p1
+%patch0004 -p1
+%patch0005 -p1
+%patch0006 -p1
 
 find . \( -name .gitignore -o -name .placeholder \) -delete
 find keystone -name \*.py -exec sed -i '/\/usr\/bin\/env python/d' {} \;
@@ -206,6 +216,12 @@ fi
 %{python_sitelib}/keystone/middleware/auth_token.py*
 
 %changelog
+* Mon Jun 11 2012 Alan Pevec <apevec@redhat.com> 2012.1-4
+- Corrects url conversion in export_legacy_catalog (lp#994936)
+- Invalidate user tokens when password is changed (lp#996595)
+- Invalidate user tokens when a user is disabled (lp#997194)
+- Carrying over token expiry time when token chaining (lp#998185)
+
 * Thu May 24 2012 Alan Pevec <apevec@redhat.com> 2012.1-3
 - python-keystone-auth-token subpackage (rhbz#824034)
 - use reserved user id for keystone (rhbz#752842)
