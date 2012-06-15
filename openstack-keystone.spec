@@ -11,7 +11,7 @@
 
 Name:           openstack-keystone
 Version:        2012.1
-Release:        4%{?dist}
+Release:        5%{?dist}
 #Release:       0.1.%{release_letter}%{milestone}%{?dist}
 Summary:        OpenStack Identity Service
 
@@ -181,8 +181,11 @@ fi
 
 %triggerpostun -n python-keystone-auth-token -- python-keystone
 # edge case: removing python-keystone with overlapping files
-> %{python_sitelib}/keystone/__init__.py
-> %{python_sitelib}/keystone/middleware/__init__.py
+if [ $2 -eq 0 ] ; then
+    # Package removal, not upgrade
+    > %{python_sitelib}/keystone/__init__.py
+    > %{python_sitelib}/keystone/middleware/__init__.py
+fi
 
 %preun
 if [ $1 -eq 0 ] ; then
@@ -233,6 +236,9 @@ fi
 %{python_sitelib}/keystone/middleware/auth_token.py*
 
 %changelog
+* Fri Jun 15 2012 Alan Pevec <apevec@redhat.com> 2012.1-5
+- fix upgrade case with python-keystone-auth-token (rhbz#824034#c20)
+
 * Mon Jun 11 2012 Alan Pevec <apevec@redhat.com> 2012.1-4
 - Corrects url conversion in export_legacy_catalog (lp#994936)
 - Invalidate user tokens when password is changed (lp#996595)
