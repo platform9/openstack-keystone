@@ -11,7 +11,7 @@
 
 Name:           openstack-keystone
 Version:        2012.1
-Release:        8%{?dist}
+Release:        9%{?dist}
 #Release:       0.1.%{release_letter}%{milestone}%{?dist}
 Summary:        OpenStack Identity Service
 
@@ -22,6 +22,7 @@ Source0:        http://launchpad.net/keystone/%{release_name}/%{version}/+downlo
 #Source0:        http://keystone.openstack.org/tarballs/keystone-%{version}%{snaptag}.tar.gz
 Source1:        openstack-keystone.logrotate
 Source2:        openstack-keystone.init
+Source3:        openstack-keystone.upstart
 Source5:        openstack-keystone-sample-data
 
 Patch0:       openstack-keystone-newdeps.patch
@@ -149,6 +150,7 @@ install -p -D -m 644 %{SOURCE1} %{buildroot}%{_sysconfdir}/logrotate.d/openstack
 install -p -D -m 755 %{SOURCE2} %{buildroot}%{_initrddir}/openstack-keystone
 # Install sample data script.
 install -p -D -m 755 tools/sample_data.sh %{buildroot}%{_datadir}/%{name}/sample_data.sh
+install -p -D -m 644 %{SOURCE3} %{buildroot}%{_datadir}/%{name}/%{name}.upstart
 install -p -D -m 755 %{SOURCE5} %{buildroot}%{_bindir}/openstack-keystone-sample-data
 
 install -d -m 755 %{buildroot}%{_sharedstatedir}/keystone
@@ -228,6 +230,7 @@ fi
 %{_bindir}/openstack-keystone-sample-data
 %{_datadir}/%{name}
 %{_datadir}/%{name}/sample_data.sh
+%{_datadir}/%{name}/%{name}.upstart
 %{_initrddir}/openstack-keystone
 %dir %{_sysconfdir}/keystone
 %config(noreplace) %attr(-, root, keystone) %{_sysconfdir}/keystone/keystone.conf
@@ -255,6 +258,9 @@ fi
 %{python_sitelib}/keystone/middleware/auth_token.py*
 
 %changelog
+* Thu Jun 21 2012 Alan Pevec <apevec@redhat.com> 2012.1-9
+- add upstart job, alternative to sysv initscript
+
 * Fri Jun 15 2012 Alan Pevec <apevec@redhat.com> 2012.1-8
 - fix upgrade case with python-keystone-auth-token (rhbz#824034#c20)
 
