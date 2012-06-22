@@ -229,8 +229,6 @@ fi
 %{_bindir}/keystone-manage
 %{_bindir}/openstack-keystone-sample-data
 %{_datadir}/%{name}
-%{_datadir}/%{name}/sample_data.sh
-%{_datadir}/%{name}/%{name}.upstart
 %{_initrddir}/openstack-keystone
 %dir %{_sysconfdir}/keystone
 %config(noreplace) %attr(-, root, keystone) %{_sysconfdir}/keystone/keystone.conf
