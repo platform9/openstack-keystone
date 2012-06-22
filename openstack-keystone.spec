@@ -1,17 +1,14 @@
 #
-# This is 2012.1 essex release
+# This is 2012.1.1 stable/essex release
 #
 %global release_name essex
-%global release_letter rc
-%global milestone 2
-%global snapdate 20120404
-%global git_revno r2201
-
-%global snaptag ~%{release_letter}%{milestone}~%{snapdate}.%{git_revno}
+%global snapdate 20120615
+%global git_revno 2215
+%global snaptag %{?milestone:~%{release_letter}%{milestone}}~%{snapdate}.%{git_revno}
 
 Name:           openstack-keystone
-Version:        2012.1
-Release:        5%{?dist}
+Version:        2012.1.1
+Release:        1%{?dist}
 #Release:       0.1.%{release_letter}%{milestone}%{?dist}
 Summary:        OpenStack Identity Service
 
@@ -25,14 +22,8 @@ Source2:        openstack-keystone.service
 Source5:        openstack-keystone-sample-data
 
 #
-# patches_base=2012.1
+# patches_base=2012.1.1
 #
-Patch0001: 0001-Make-import_nova_auth-only-create-roles-which-don-t-.patch
-Patch0002: 0002-Fix-test-env-for-the-stable-branch.patch
-Patch0003: 0003-Corrects-url-conversion-in-export_legacy_catalog.patch
-Patch0004: 0004-Invalidate-user-tokens-when-password-is-changed.patch
-Patch0005: 0005-Invalidate-user-tokens-when-a-user-is-disabled.patch
-Patch0006: 0006-Carrying-over-token-expiry-time-when-token-chaining.patch
 
 BuildArch:      noarch
 BuildRequires:  python2-devel
@@ -101,12 +92,6 @@ This package contains the Keystone Authentication Middleware.
 %prep
 %setup -q -n keystone-%{version}
 
-%patch0001 -p1
-%patch0002 -p1
-%patch0003 -p1
-%patch0004 -p1
-%patch0005 -p1
-%patch0006 -p1
 
 find . \( -name .gitignore -o -name .placeholder \) -delete
 find keystone -name \*.py -exec sed -i '/\/usr\/bin\/env python/d' {} \;
@@ -236,6 +221,9 @@ fi
 %{python_sitelib}/keystone/middleware/auth_token.py*
 
 %changelog
+* Fri Jun 22 2012 Alan Pevec <apevec@redhat.com> 2012.1.1-1
+- updated to stable essex release 2012.1.1
+
 * Fri Jun 15 2012 Alan Pevec <apevec@redhat.com> 2012.1-5
 - fix upgrade case with python-keystone-auth-token (rhbz#824034#c20)
 
