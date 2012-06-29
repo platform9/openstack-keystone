@@ -1,17 +1,15 @@
 #
-# This is 2012.1 essex release
+# This is 2012.1.1 stable/essex release
 #
 %global release_name essex
-%global release_letter rc
-%global milestone 2
-%global snapdate 20120404
-%global git_revno r2201
-
-%global snaptag ~%{release_letter}%{milestone}~%{snapdate}.%{git_revno}
+%global snapdate 20120615
+%global git_revno 2215
+%global snaptag %{?milestone:~%{release_letter}%{milestone}}~%{snapdate}.%{git_revno}
+%global with_doc %{!?_without_doc:1}%{?_without_doc:0}
 
 Name:           openstack-keystone
-Version:        2012.1
-Release:        9%{?dist}
+Version:        2012.1.1
+Release:        1%{?dist}
 #Release:       0.1.%{release_letter}%{milestone}%{?dist}
 Summary:        OpenStack Identity Service
 
@@ -28,14 +26,11 @@ Source5:        openstack-keystone-sample-data
 Patch0:       openstack-keystone-newdeps.patch
 
 #
-# patches_base=2012.1
+# patches_base=2012.1.1
 #
-Patch0001: 0001-Make-import_nova_auth-only-create-roles-which-don-t-.patch
-Patch0002: 0002-Fix-test-env-for-the-stable-branch.patch
-Patch0003: 0003-Corrects-url-conversion-in-export_legacy_catalog.patch
-Patch0004: 0004-Invalidate-user-tokens-when-password-is-changed.patch
-Patch0005: 0005-Invalidate-user-tokens-when-a-user-is-disabled.patch
-Patch0006: 0006-Carrying-over-token-expiry-time-when-token-chaining.patch
+Patch0001: 0001-fix-man-page-build.patch
+Patch0002: 0002-fix-sphinx-warnings.patch
+Patch0003: 0003-match-egg-and-spec-requires.patch
 
 BuildArch:      noarch
 
@@ -85,6 +80,7 @@ Requires:       python-webob1.0
 Requires:       python-passlib
 Requires:       python-setuptools
 Requires:       MySQL-python
+Requires:       PyPAM
 
 %description -n   python-keystone
 Keystone is a Python implementation of the OpenStack
@@ -108,6 +104,20 @@ Keystone is a Python implementation of the OpenStack
 
 This package contains the Keystone Authentication Middleware.
 
+%if 0%{?with_doc}
+%package doc
+Summary:        Documentation for OpenStack Identity Service
+Group:          Documentation
+
+Requires:       %{name} = %{version}-%{release}
+
+%description doc
+Keystone is a Python implementation of the OpenStack
+(http://www.openstack.org) identity service API.
+
+This package contains documentation for Keystone.
+%endif
+
 %prep
 %setup -q -n keystone-%{version}
 %patch0 -p1 -b .newdeps
@@ -115,9 +125,6 @@ This package contains the Keystone Authentication Middleware.
 %patch0001 -p1
 %patch0002 -p1
 %patch0003 -p1
-%patch0004 -p1
-%patch0005 -p1
-%patch0006 -p1
 
 find . \( -name .gitignore -o -name .placeholder \) -delete
 find keystone -name \*.py -exec sed -i '/\/usr\/bin\/env python/d' {} \;
@@ -159,7 +166,17 @@ install -d -m 755 %{buildroot}%{_localstatedir}/run/keystone
 
 # docs generation requires everything to be installed first
 export PYTHONPATH="$( pwd ):$PYTHONPATH"
-make SPHINXAPIDOC=echo SPHINXBUILD=sphinx-1.0-build -C doc html
+pushd doc
+if [ -x /usr/bin/sphinx-apidoc ]; then
+    make html
+    make man
+else
+    make html SPHINXAPIDOC=echo SPHINXBUILD=sphinx-1.0-build
+    make man SPHINXAPIDOC=echo SPHINXBUILD=sphinx-1.0-build
+fi
+mkdir -p %{buildroot}%{_mandir}/man1
+install -p -D -m 644 build/man/*.1 %{buildroot}%{_mandir}/man1/
+popd
 # Fix hidden-file-or-dir warnings
 rm -fr doc/build/html/.doctrees doc/build/html/.buildinfo
 
@@ -224,7 +241,7 @@ fi
 %files
 %doc LICENSE
 %doc README.rst
-%doc doc/build/html
+%{_mandir}/man1/keystone*.1.gz
 %{_bindir}/keystone-all
 %{_bindir}/keystone-manage
 %{_bindir}/openstack-keystone-sample-data
@@ -255,7 +272,15 @@ fi
 %ghost %{python_sitelib}/keystone/middleware/__init__.py
 %{python_sitelib}/keystone/middleware/auth_token.py*
 
+%if 0%{?with_doc}
+%files doc
+%doc LICENSE doc/build/html
+%endif
+
 %changelog
+* Fri Jun 22 2012 Alan Pevec <apevec@redhat.com> 2012.1.1-1
+- updated to stable essex release 2012.1.1
+
 * Thu Jun 21 2012 Alan Pevec <apevec@redhat.com> 2012.1-9
 - add upstart job, alternative to sysv initscript
 
