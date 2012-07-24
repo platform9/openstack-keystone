@@ -25,6 +25,7 @@ Source4:        openstack-config-set
 Source5:        openstack-keystone-sample-data
 
 BuildArch:      noarch
+BuildRequires:  make
 BuildRequires:  python2-devel
 BuildRequires:  python-sphinx >= 1.0
 BuildRequires:  python-iniparse
@@ -184,6 +185,9 @@ fi
 %{python_sitelib}/keystone-%{version}-*.egg-info
 
 %changelog
+* Tue Jul 24 2012 Dan Prince <dprince@redhat.com> 2012.2-0.12.f3
+- Add build requires for make.
+
 * Sat Mar 24 2012 Alan Pevec <apevec@redhat.com> 2012.1-0.12.rc1
 - upate to final essex rc1
 
