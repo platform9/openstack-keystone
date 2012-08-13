@@ -1,4 +1,4 @@
-From 608fede80b33d1e2c484fd5560e6bc2ebb12a9b5 Mon Sep 17 00:00:00 2001
+From b4a6c16dd6dd2ce3a9689f43d358ad9874cdbd20 Mon Sep 17 00:00:00 2001
 From: Alan Pevec <apevec@redhat.com>
 Date: Fri, 22 Jun 2012 20:01:48 +0200
 Subject: [PATCH] fix sphinx warnings

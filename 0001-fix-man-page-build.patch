@@ -1,4 +1,4 @@
-From 4d038ac64843e9022708b0fec9108ccd56835d15 Mon Sep 17 00:00:00 2001
+From cd0302359eef3ebd9571ecec5e909191cd704876 Mon Sep 17 00:00:00 2001
 From: Alan Pevec <apevec@redhat.com>
 Date: Fri, 22 Jun 2012 19:39:45 +0200
 Subject: [PATCH] fix man page build
