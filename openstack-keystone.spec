@@ -1,23 +1,21 @@
 #
-# This is 2012.1.1 stable/essex release
+# This is 2012.1.2 stable/essex release
 #
 %global release_name essex
-%global snapdate 20120615
-%global git_revno 2215
+%global snapdate 20120810
+%global git_revno 2230
 %global snaptag %{?milestone:~%{release_letter}%{milestone}}~%{snapdate}.%{git_revno}
 %global with_doc %{!?_without_doc:1}%{?_without_doc:0}
 
 Name:           openstack-keystone
-Version:        2012.1.1
+Version:        2012.1.2
 Release:        1%{?dist}
-#Release:       0.1.%{release_letter}%{milestone}%{?dist}
 Summary:        OpenStack Identity Service
 
 License:        ASL 2.0
 URL:            http://keystone.openstack.org/
 Source0:        http://launchpad.net/keystone/%{release_name}/%{version}/+download/keystone-%{version}.tar.gz
-#Source0:        http://launchpad.net/keystone/%{release_name}/%{release_name}-%{milestone}/+download/keystone-%{version}~%{release_letter}%{milestone}.tar.gz
-#Source0:        http://keystone.openstack.org/tarballs/keystone-%{version}%{snaptag}.tar.gz
+#Source0:        http://tarballs.openstack.org/keystone/keystone-%{version}%{snaptag}.tar.gz
 Source1:        openstack-keystone.logrotate
 Source2:        openstack-keystone.init
 Source3:        openstack-keystone.upstart
@@ -26,7 +24,7 @@ Source5:        openstack-keystone-sample-data
 Patch0:       openstack-keystone-newdeps.patch
 
 #
-# patches_base=2012.1.1
+# patches_base=2012.1.2
 #
 Patch0001: 0001-fix-man-page-build.patch
 Patch0002: 0002-fix-sphinx-warnings.patch
@@ -278,6 +276,9 @@ fi
 %endif
 
 %changelog
+* Mon Aug 13 2012 Alan Pevec <apevec@redhat.com> 2012.1.2-1
+- updated to stable essex release 2012.1.2
+
 * Fri Jun 22 2012 Alan Pevec <apevec@redhat.com> 2012.1.1-1
 - updated to stable essex release 2012.1.1
 
