@@ -253,7 +253,7 @@ fi
 - updated to stable essex release 2012.1.2
 
 * Fri Jun 22 2012 Alan Pevec <apevec@redhat.com> 2012.1.1-1
-- updated to stable essex release 2012.1.1
+- updated to stable essex release 2012.1.1 (CVE-2012-3426)
 
 * Fri Jun 15 2012 Alan Pevec <apevec@redhat.com> 2012.1-5
 - fix upgrade case with python-keystone-auth-token (rhbz#824034#c20)
