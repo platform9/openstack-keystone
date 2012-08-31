@@ -32,7 +32,7 @@ BuildRequires:  python-iniparse
 BuildRequires:  systemd-units
 
 Requires:       python-keystone = %{version}-%{release}
-Requires:       python-keystoneclient >= 2012.1-0.4.e4
+Requires:       python-keystoneclient >= 0.1.1.24
 
 Requires(post):   systemd-units
 Requires(preun):  systemd-units
@@ -185,6 +185,10 @@ fi
 %{python_sitelib}/keystone-%{version}-*.egg-info
 
 %changelog
+
+* Fri Aug 31 2012 Dan Prince <dprince@redhat.com> 2012.2-0.12.f3
+- Update requires for keystoneclient to use new versioning.
+
 * Tue Jul 24 2012 Dan Prince <dprince@redhat.com> 2012.2-0.12.f3
 - Add build requires for make.
 
