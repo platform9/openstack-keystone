@@ -9,7 +9,7 @@
 
 Name:           openstack-keystone
 Version:        2012.1.2
-Release:        2%{?dist}
+Release:        3%{?dist}
 Summary:        OpenStack Identity Service
 
 License:        ASL 2.0
@@ -27,6 +27,8 @@ Patch0001: 0001-fix-man-page-build.patch
 Patch0002: 0002-fix-sphinx-warnings.patch
 Patch0003: 0003-match-egg-and-spec-requires.patch
 Patch0004: 0004-Require-authz-to-update-user-s-tenant-bug-1040626.patch
+Patch0005: 0005-List-tokens-for-memcached-backend.patch
+Patch0006: 0006-Delete-user-tokens-after-role-grant-revoke.patch
 
 BuildArch:      noarch
 BuildRequires:  python2-devel
@@ -114,6 +116,8 @@ This package contains documentation for Keystone.
 %patch0002 -p1
 %patch0003 -p1
 %patch0004 -p1
+%patch0005 -p1
+%patch0006 -p1
 
 find . \( -name .gitignore -o -name .placeholder \) -delete
 find keystone -name \*.py -exec sed -i '/\/usr\/bin\/env python/d' {} \;
@@ -251,6 +255,9 @@ fi
 %endif
 
 %changelog
+* Wed Sep 12 2012 Alan Pevec <apevec@redhat.com> 2012.1.2-3
+- Delete user tokens after role grant/revoke (CVE-2012-4413)
+
 * Thu Aug 30 2012 Alan Pevec <apevec@redhat.com> 2012.1.2-2
 - Require authz to update user's tenant (CVE-2012-3542)
 
