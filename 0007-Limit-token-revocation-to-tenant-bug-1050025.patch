@@ -1,0 +1,212 @@
+From fe555fac1d09d30b5c76e51a961cc7668bfe9470 Mon Sep 17 00:00:00 2001
+From: Dolph Mathews <dolph.mathews@gmail.com>
+Date: Thu, 13 Sep 2012 11:59:11 -0500
+Subject: [PATCH] Limit token revocation to tenant (bug 1050025)
+
+Change-Id: I7ebe0192b4900ad9475119a6d582233b37b31fb4
+---
+ keystone/identity/core.py           |    8 ++++----
+ keystone/token/backends/kvs.py      |   15 ++++++++++-----
+ keystone/token/backends/memcache.py |   11 ++++++++---
+ keystone/token/backends/sql.py      |    7 ++++++-
+ keystone/token/core.py              |   16 +++++++++++-----
+ tests/test_backend.py               |   22 +++++++++++++++++++++-
+ 6 files changed, 60 insertions(+), 19 deletions(-)
+
+diff --git a/keystone/identity/core.py b/keystone/identity/core.py
+index 22df815..7038d73 100644
+--- a/keystone/identity/core.py
++++ b/keystone/identity/core.py
+@@ -525,7 +525,7 @@ class RoleController(wsgi.Application):
+         self.identity_api.add_user_to_tenant(context, tenant_id, user_id)
+         self.identity_api.add_role_to_user_and_tenant(
+                 context, user_id, tenant_id, role_id)
+-        self.token_api.revoke_tokens(context, user_id)
++        self.token_api.revoke_tokens(context, user_id, tenant_id)
+ 
+         role_ref = self.identity_api.get_role(context, role_id)
+         return {'role': role_ref}
+@@ -557,7 +557,7 @@ class RoleController(wsgi.Application):
+         if not roles:
+             self.identity_api.remove_user_from_tenant(
+                     context, tenant_id, user_id)
+-        self.token_api.revoke_tokens(context, user_id)
++        self.token_api.revoke_tokens(context, user_id, tenant_id)
+ 
+     # COMPAT(diablo): CRUD extension
+     def get_role_refs(self, context, user_id):
+@@ -599,7 +599,7 @@ class RoleController(wsgi.Application):
+         self.identity_api.add_user_to_tenant(context, tenant_id, user_id)
+         self.identity_api.add_role_to_user_and_tenant(
+                 context, user_id, tenant_id, role_id)
+-        self.token_api.revoke_tokens(context, user_id)
++        self.token_api.revoke_tokens(context, user_id, tenant_id)
+ 
+         role_ref = self.identity_api.get_role(context, role_id)
+         return {'role': role_ref}
+@@ -628,4 +628,4 @@ class RoleController(wsgi.Application):
+         if not roles:
+             self.identity_api.remove_user_from_tenant(
+                     context, tenant_id, user_id)
+-        self.token_api.revoke_tokens(context, user_id)
++        self.token_api.revoke_tokens(context, user_id, tenant_id)
+diff --git a/keystone/token/backends/kvs.py b/keystone/token/backends/kvs.py
+index b033dd3..6b3828d 100644
+--- a/keystone/token/backends/kvs.py
++++ b/keystone/token/backends/kvs.py
+@@ -45,17 +45,22 @@ class Token(kvs.Base, token.Driver):
+         except KeyError:
+             raise exception.TokenNotFound(token_id=token_id)
+ 
+-    def list_tokens(self, user_id):
++    def list_tokens(self, user_id, tenant_id=None):
+         tokens = []
+         now = datetime.datetime.utcnow()
+-        for token, user_ref in self.db.items():
++        for token, ref in self.db.items():
+             if not token.startswith('token-'):
+                 continue
+-            if 'user' not in user_ref:
++            if 'user' not in ref:
+                 continue
+-            if user_ref['user'].get('id') != user_id:
++            if ref['user'].get('id') != user_id:
+                 continue
+-            if user_ref.get('expires') and user_ref.get('expires') < now:
++            if ref.get('expires') and ref.get('expires') < now:
+                 continue
++            if tenant_id is not None:
++                if 'tenant' not in ref:
++                    continue
++                if ref['tenant'].get('id') != tenant_id:
++                    continue
+             tokens.append(token.split('-', 1)[1])
+         return tokens
+diff --git a/keystone/token/backends/memcache.py b/keystone/token/backends/memcache.py
+index ae4ecc0..796b69e 100644
+--- a/keystone/token/backends/memcache.py
++++ b/keystone/token/backends/memcache.py
+@@ -81,13 +81,18 @@ class Token(token.Driver):
+         result = self.client.delete(ptk)
+         return result
+ 
+-    def list_tokens(self, user_id):
++    def list_tokens(self, user_id, tenant_id=None):
+         tokens = []
+         user_record = self.client.get('usertokens-%s' % user_id) or ""
+         token_list = user_record.split(',')
+         for token_id in token_list:
+             ptk = self._prefix_token_id(token_id)
+-            token = self.client.get(ptk)
+-            if token:
++            token_ref = self.client.get(ptk)
++            if token_ref:
++                if tenant_id is not None:
++                    if 'tenant' not in token_ref:
++                        continue
++                    if token_ref['tenant'].get('id') != tenant_id:
++                        continue
+                 tokens.append(token_id)
+         return tokens
+diff --git a/keystone/token/backends/sql.py b/keystone/token/backends/sql.py
+index 543f962..e74760c 100644
+--- a/keystone/token/backends/sql.py
++++ b/keystone/token/backends/sql.py
+@@ -82,7 +82,7 @@ class Token(sql.Base, token.Driver):
+             session.delete(token_ref)
+             session.flush()
+ 
+-    def list_tokens(self, user_id):
++    def list_tokens(self, user_id, tenant_id=None):
+         session = self.get_session()
+         tokens = []
+         now = datetime.datetime.utcnow()
+@@ -93,5 +93,10 @@ class Token(sql.Base, token.Driver):
+                 continue
+             if token_ref_dict['user'].get('id') != user_id:
+                 continue
++            if tenant_id is not None:
++                if 'tenant' not in token_ref_dict:
++                    continue
++                if token_ref_dict['tenant'].get('id') != tenant_id:
++                    continue
+             tokens.append(token_ref['id'])
+         return tokens
+diff --git a/keystone/token/core.py b/keystone/token/core.py
+index a0c89e2..58fb8e8 100644
+--- a/keystone/token/core.py
++++ b/keystone/token/core.py
+@@ -38,8 +38,13 @@ class Manager(manager.Manager):
+     def __init__(self):
+         super(Manager, self).__init__(CONF.token.driver)
+ 
+-    def revoke_tokens(self, context, user_id):
+-        for token_id in self.list_tokens(context, user_id):
++    def revoke_tokens(self, context, user_id, tenant_id=None):
++        """Invalidates all tokens held by a user (optionally for a tenant).
++
++        If a specific tenant ID is not provided, *all* tokens held by user will
++        be revoked.
++        """
++        for token_id in self.list_tokens(context, user_id, tenant_id):
+             self.delete_token(context, token_id)
+ 
+ 
+@@ -101,10 +106,11 @@ class Driver(object):
+         """
+         raise exception.NotImplemented()
+ 
+-    def revoke_tokens(self, user_id):
+-        """Invalidates all tokens held by a user.
++    def revoke_tokens(self, user_id, tenant_id=None):
++        """Invalidates all tokens held by a user (optionally for a tenant).
+ 
+-        :raises: keystone.exception.UserNotFound
++        :raises: keystone.exception.UserNotFound,
++                 keystone.exception.TenantNotFound
+         """
+         raise exception.NotImplemented()
+ 
+diff --git a/tests/test_backend.py b/tests/test_backend.py
+index 2a7ba4d..d34871b 100644
+--- a/tests/test_backend.py
++++ b/tests/test_backend.py
+@@ -334,10 +334,12 @@ class TokenTests(object):
+         self.assertRaises(exception.TokenNotFound,
+                 self.token_api.get_token, token_id)
+ 
+-    def create_token_sample_data(self):
++    def create_token_sample_data(self, tenant_id=None):
+         token_id = uuid.uuid4().hex
+         data = {'id': token_id, 'a': 'b',
+                 'user': {'id': 'testuserid'}}
++        if tenant_id is not None:
++            data['tenant'] = {'id': tenant_id, 'name': tenant_id}
+         self.token_api.create_token(token_id, data)
+         return token_id
+ 
+@@ -362,6 +364,24 @@ class TokenTests(object):
+         self.assertNotIn(token_id2, tokens)
+         self.assertNotIn(token_id1, tokens)
+ 
++        # tenant-specific tokens
++        tenant1 = uuid.uuid4().hex
++        tenant2 = uuid.uuid4().hex
++        token_id3 = self.create_token_sample_data(tenant_id=tenant1)
++        token_id4 = self.create_token_sample_data(tenant_id=tenant2)
++        tokens = self.token_api.list_tokens('testuserid')
++        self.assertEquals(len(tokens), 2)
++        self.assertNotIn(token_id1, tokens)
++        self.assertNotIn(token_id2, tokens)
++        self.assertIn(token_id3, tokens)
++        self.assertIn(token_id4, tokens)
++        tokens = self.token_api.list_tokens('testuserid', tenant2)
++        self.assertEquals(len(tokens), 1)
++        self.assertNotIn(token_id1, tokens)
++        self.assertNotIn(token_id2, tokens)
++        self.assertNotIn(token_id3, tokens)
++        self.assertIn(token_id4, tokens)
++
+     def test_null_expires_token(self):
+         token_id = uuid.uuid4().hex
+         data = {'id': token_id, 'id_hash': token_id, 'a': 'b', 'expires': None,
