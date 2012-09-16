@@ -9,7 +9,7 @@
 
 Name:           openstack-keystone
 Version:        2012.1.2
-Release:        3%{?dist}
+Release:        4%{?dist}
 Summary:        OpenStack Identity Service
 
 License:        ASL 2.0
@@ -32,6 +32,7 @@ Patch0003: 0003-match-egg-and-spec-requires.patch
 Patch0004: 0004-Require-authz-to-update-user-s-tenant-bug-1040626.patch
 Patch0005: 0005-List-tokens-for-memcached-backend.patch
 Patch0006: 0006-Delete-user-tokens-after-role-grant-revoke.patch
+Patch0007: 0007-Limit-token-revocation-to-tenant-bug-1050025.patch
 
 BuildArch:      noarch
 
@@ -129,6 +130,7 @@ This package contains documentation for Keystone.
 %patch0004 -p1
 %patch0005 -p1
 %patch0006 -p1
+%patch0007 -p1
 
 find . \( -name .gitignore -o -name .placeholder \) -delete
 find keystone -name \*.py -exec sed -i '/\/usr\/bin\/env python/d' {} \;
@@ -282,6 +284,9 @@ fi
 %endif
 
 %changelog
+* Sun Sep 16 2012 Alan Pevec <apevec@redhat.com> 2012.1.2-4
+- Limit token revocation to tenant (lp#1050025)
+
 * Wed Sep 12 2012 Alan Pevec <apevec@redhat.com> 2012.1.2-3
 - Delete user tokens after role grant/revoke (CVE-2012-4413)
 
