@@ -1,4 +1,4 @@
-From cd0302359eef3ebd9571ecec5e909191cd704876 Mon Sep 17 00:00:00 2001
+From 6b278c69bf92c005a3d6a77ae70a952037f99afa Mon Sep 17 00:00:00 2001
 From: Alan Pevec <apevec@redhat.com>
 Date: Fri, 22 Jun 2012 19:39:45 +0200
 Subject: [PATCH] fix man page build
@@ -8,9 +8,9 @@ sync keystone-all man page with keystone-all -h output
 
 Change-Id: Ie136d30d0ea647082459ae35720e48742aa2b722
 ---
- doc/source/conf.py                 |   12 ----------
- doc/source/man/keystone-all.rst    |   40 ++++++++++++++---------------------
- doc/source/man/keystone-manage.rst |    6 ++--
+ doc/source/conf.py                 | 12 ------------
+ doc/source/man/keystone-all.rst    | 40 +++++++++++++++-----------------------
+ doc/source/man/keystone-manage.rst |  6 +++---
  3 files changed, 19 insertions(+), 39 deletions(-)
 
 diff --git a/doc/source/conf.py b/doc/source/conf.py

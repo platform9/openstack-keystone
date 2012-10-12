@@ -1,15 +1,15 @@
 #
-# This is 2012.1.2 stable/essex release
+# This is 2012.1.3 stable/essex release
 #
 %global release_name essex
-%global snapdate 20120810
-%global git_revno 2230
+%global snapdate 20120926
+%global git_revno 2238
 %global snaptag %{?milestone:~%{release_letter}%{milestone}}~%{snapdate}.%{git_revno}
 %global with_doc %{!?_without_doc:1}%{?_without_doc:0}
 
 Name:           openstack-keystone
-Version:        2012.1.2
-Release:        4%{?dist}
+Version:        2012.1.3
+Release:        1%{?dist}
 Summary:        OpenStack Identity Service
 
 License:        ASL 2.0
@@ -21,15 +21,11 @@ Source2:        openstack-keystone.service
 Source5:        openstack-keystone-sample-data
 
 #
-# patches_base=2012.1.2
+# patches_base=2012.1.3
 #
 Patch0001: 0001-fix-man-page-build.patch
 Patch0002: 0002-fix-sphinx-warnings.patch
 Patch0003: 0003-match-egg-and-spec-requires.patch
-Patch0004: 0004-Require-authz-to-update-user-s-tenant-bug-1040626.patch
-Patch0005: 0005-List-tokens-for-memcached-backend.patch
-Patch0006: 0006-Delete-user-tokens-after-role-grant-revoke.patch
-Patch0007: 0007-Limit-token-revocation-to-tenant-bug-1050025.patch
 
 BuildArch:      noarch
 BuildRequires:  python2-devel
@@ -116,10 +112,6 @@ This package contains documentation for Keystone.
 %patch0001 -p1
 %patch0002 -p1
 %patch0003 -p1
-%patch0004 -p1
-%patch0005 -p1
-%patch0006 -p1
-%patch0007 -p1
 
 find . \( -name .gitignore -o -name .placeholder \) -delete
 find keystone -name \*.py -exec sed -i '/\/usr\/bin\/env python/d' {} \;
@@ -257,6 +249,9 @@ fi
 %endif
 
 %changelog
+* Fri Oct 12 2012 Alan Pevec <apevec@redhat.com> 2012.1.3-1
+- updated to stable essex release 2012.1.3
+
 * Sun Sep 16 2012 Alan Pevec <apevec@redhat.com> 2012.1.2-4
 - Limit token revocation to tenant (lp#1050025)
 

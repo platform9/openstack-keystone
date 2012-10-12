@@ -1,4 +1,4 @@
-From b4a6c16dd6dd2ce3a9689f43d358ad9874cdbd20 Mon Sep 17 00:00:00 2001
+From 07321871794b217eefa6508279b69d5b0cac46fa Mon Sep 17 00:00:00 2001
 From: Alan Pevec <apevec@redhat.com>
 Date: Fri, 22 Jun 2012 20:01:48 +0200
 Subject: [PATCH] fix sphinx warnings
@@ -7,9 +7,9 @@ also disable building old docs
 
 Change-Id: I0bbbb2b702a12bd9acb79f89b5b5c92cffeec779
 ---
- doc/source/architecture.rst        |    4 ++++
- doc/source/conf.py                 |    2 +-
- doc/source/configuringservices.rst |    2 +-
+ doc/source/architecture.rst        | 4 ++++
+ doc/source/conf.py                 | 2 +-
+ doc/source/configuringservices.rst | 2 +-
  3 files changed, 6 insertions(+), 2 deletions(-)
 
 diff --git a/doc/source/architecture.rst b/doc/source/architecture.rst
