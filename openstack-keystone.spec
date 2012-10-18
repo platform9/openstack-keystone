@@ -1,20 +1,25 @@
 #
-# This is 2012.1.3 stable/essex release
+# This is 2012.2 folsom release
 #
-%global release_name essex
+%global release_name folsom
+%global release_letter rc
+%global milestone 2
 %global snapdate 20120926
-%global git_revno 2238
-%global snaptag %{?milestone:~%{release_letter}%{milestone}}~%{snapdate}.%{git_revno}
+%global git_revno r2538
+
+%global snaptag ~%{release_letter}%{milestone}~%{snapdate}.%{git_revno}
 %global with_doc %{!?_without_doc:1}%{?_without_doc:0}
 
 Name:           openstack-keystone
-Version:        2012.1.3
+Version:        2012.2
 Release:        1%{?dist}
+#Release:        0.1.%{release_letter}%{milestone}%{?dist}
 Summary:        OpenStack Identity Service
 
 License:        ASL 2.0
 URL:            http://keystone.openstack.org/
 Source0:        http://launchpad.net/keystone/%{release_name}/%{version}/+download/keystone-%{version}.tar.gz
+#Source0:        http://launchpad.net/keystone/%{release_name}/%{release_name}-%{milestone}/+download/keystone-%{version}~%{release_letter}%{milestone}.tar.gz
 #Source0:        http://tarballs.openstack.org/keystone/keystone-%{version}%{snaptag}.tar.gz
 Source1:        openstack-keystone.logrotate
 Source2:        openstack-keystone.init
@@ -24,11 +29,12 @@ Source5:        openstack-keystone-sample-data
 Patch0:       openstack-keystone-newdeps.patch
 
 #
-# patches_base=2012.1.3
+# patches_base=2012.2
 #
-Patch0001: 0001-fix-man-page-build.patch
-Patch0002: 0002-fix-sphinx-warnings.patch
-Patch0003: 0003-match-egg-and-spec-requires.patch
+Patch0001: 0001-match-egg-and-spec-requires.patch
+Patch0002: 0002-add-Quantum-endpoint-in-sample-data.patch
+Patch0003: 0003-add-Swift-endpoint-in-sample-data.patch
+Patch0004: 0004-notify-calling-process-we-are-ready-to-serve.patch
 
 BuildArch:      noarch
 
@@ -107,8 +113,6 @@ This package contains the Keystone Authentication Middleware.
 Summary:        Documentation for OpenStack Identity Service
 Group:          Documentation
 
-Requires:       %{name} = %{version}-%{release}
-
 %description doc
 Keystone is a Python implementation of the OpenStack
 (http://www.openstack.org) identity service API.
@@ -123,6 +127,7 @@ This package contains documentation for Keystone.
 %patch0001 -p1
 %patch0002 -p1
 %patch0003 -p1
+%patch0004 -p1
 
 find . \( -name .gitignore -o -name .placeholder \) -delete
 find keystone -name \*.py -exec sed -i '/\/usr\/bin\/env python/d' {} \;
@@ -130,6 +135,7 @@ find keystone -name \*.py -exec sed -i '/\/usr\/bin\/env python/d' {} \;
 
 %build
 # change default configuration
+cp etc/keystone.conf.sample etc/keystone.conf
 openstack-config --set etc/keystone.conf DEFAULT log_file %{_localstatedir}/log/keystone/keystone.log
 openstack-config --set etc/keystone.conf sql connection mysql://keystone:keystone@localhost/keystone
 openstack-config --set etc/keystone.conf catalog template_file %{_sysconfdir}/keystone/default_catalog.templates
@@ -137,6 +143,8 @@ openstack-config --set etc/keystone.conf catalog driver keystone.catalog.backend
 openstack-config --set etc/keystone.conf identity driver keystone.identity.backends.sql.Identity
 openstack-config --set etc/keystone.conf token driver keystone.token.backends.sql.Token
 openstack-config --set etc/keystone.conf ec2 driver keystone.contrib.ec2.backends.sql.Ec2
+# don't try systemd notification on el6
+#openstack-config --set etc/keystone.conf DEFAULT onready keystone.common.systemd
 
 %{__python} setup.py build
 
@@ -149,6 +157,7 @@ rm -fr %{buildroot}%{python_sitelib}/run_tests.*
 
 install -d -m 755 %{buildroot}%{_sysconfdir}/keystone
 install -p -D -m 640 etc/keystone.conf %{buildroot}%{_sysconfdir}/keystone/keystone.conf
+install -p -D -m 640 etc/logging.conf.sample %{buildroot}%{_sysconfdir}/keystone/logging.conf
 install -p -D -m 640 etc/default_catalog.templates %{buildroot}%{_sysconfdir}/keystone/default_catalog.templates
 install -p -D -m 640 etc/policy.json %{buildroot}%{_sysconfdir}/keystone/policy.json
 install -p -D -m 644 %{SOURCE1} %{buildroot}%{_sysconfdir}/logrotate.d/openstack-keystone
@@ -247,6 +256,7 @@ fi
 %{_initrddir}/openstack-keystone
 %dir %{_sysconfdir}/keystone
 %config(noreplace) %attr(-, root, keystone) %{_sysconfdir}/keystone/keystone.conf
+%config(noreplace) %attr(-, root, keystone) %{_sysconfdir}/keystone/logging.conf
 %config(noreplace) %attr(-, root, keystone) %{_sysconfdir}/keystone/default_catalog.templates
 %config(noreplace) %attr(-, keystone, keystone) %{_sysconfdir}/keystone/policy.json
 %config(noreplace) %{_sysconfdir}/logrotate.d/openstack-keystone
@@ -276,6 +286,9 @@ fi
 %endif
 
 %changelog
+* Thu Oct 18 2012 Alan Pevec <apevec@redhat.com> 2012.2-1
+- Update to folsom
+
 * Fri Oct 12 2012 Alan Pevec <apevec@redhat.com> 2012.1.3-1
 - updated to stable essex release 2012.1.3
 
