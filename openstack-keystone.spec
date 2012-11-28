@@ -1,18 +1,16 @@
 #
-# This is 2012.2 folsom release
+# This is 2012.2.1 stable/folsom release
 #
 %global release_name folsom
-%global release_letter rc
-%global milestone 2
-%global snapdate 20120926
-%global git_revno r2538
+%global snapdate 20121128
+%global git_revno 2549
 
-%global snaptag ~%{release_letter}%{milestone}~%{snapdate}.%{git_revno}
+%global snaptag %{?milestone:~%{release_letter}%{milestone}}~%{snapdate}.%{git_revno}
 %global with_doc %{!?_without_doc:1}%{?_without_doc:0}
 
 Name:           openstack-keystone
-Version:        2012.2
-Release:        5%{?dist}
+Version:        2012.2.1
+Release:        1%{?dist}
 #Release:        0.1.%{release_letter}%{milestone}%{?dist}
 Summary:        OpenStack Identity Service
 
@@ -27,7 +25,7 @@ Source5:        openstack-keystone-sample-data
 
 
 #
-# patches_base=2012.2
+# patches_base=2012.2.1
 #
 Patch0001: 0001-match-egg-and-spec-requires.patch
 Patch0002: 0002-add-Quantum-endpoint-in-sample-data.patch
@@ -222,6 +220,9 @@ fi
 %endif
 
 %changelog
+* Wed Nov 28 2012 Alan Pevec <apevec@redhat.com> 2012.2.1-1
+- updated to stable folsom release 2012.2.1 CVE-2012-5563 CVE-2012-5571
+
 * Fri Nov 16 2012 Alan Pevec <apevec@redhat.com> 2012.2-5
 - fix /etc/keystone directory permission CVE-2012-5483 (rhbz#873447)
 

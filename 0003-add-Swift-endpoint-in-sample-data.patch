@@ -1,12 +1,12 @@
-From 4e661baaa7f51f6951e18b70db5c7e4c7e382165 Mon Sep 17 00:00:00 2001
+From e104a5369f3184de5b846ba2fe860c662be2baa3 Mon Sep 17 00:00:00 2001
 From: Alan Pevec <apevec@redhat.com>
 Date: Mon, 17 Sep 2012 20:51:49 +0200
 Subject: [PATCH] add Swift endpoint in sample data
 
 Change-Id: Idb1274adbcc28ccddc737d900062f5b8a5f81791
 ---
- tools/sample_data.sh |    9 ++++++++-
- 1 files changed, 8 insertions(+), 1 deletions(-)
+ tools/sample_data.sh | 9 ++++++++-
+ 1 file changed, 8 insertions(+), 1 deletion(-)
 
 diff --git a/tools/sample_data.sh b/tools/sample_data.sh
 index 18419a8..ced89dc 100755
