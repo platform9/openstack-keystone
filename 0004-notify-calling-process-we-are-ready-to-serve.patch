@@ -1,4 +1,4 @@
-From cbd4698c6e8ec16c630fac381c760581a738b675 Mon Sep 17 00:00:00 2001
+From ee593a0c9c9240b1f109ebab8e5640147591514f Mon Sep 17 00:00:00 2001
 From: Alan Pevec <apevec@redhat.com>
 Date: Wed, 19 Sep 2012 00:26:13 +0200
 Subject: [PATCH] notify calling process we are ready to serve
@@ -10,8 +10,8 @@ http://cgit.freedesktop.org/systemd/systemd/commit/?id=29252e9e5bad3b0bcfc45d9bc
 
 Change-Id: Idfb1dfb272f06a8066843f0f5750ff6e70f6bc64
 ---
- keystone/common/systemd.py |    3 +++
- 1 files changed, 3 insertions(+), 0 deletions(-)
+ keystone/common/systemd.py | 3 +++
+ 1 file changed, 3 insertions(+)
 
 diff --git a/keystone/common/systemd.py b/keystone/common/systemd.py
 index f8d3f36..52d7aff 100644
