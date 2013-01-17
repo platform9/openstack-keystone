@@ -212,7 +212,7 @@ fi
 %changelog
 * Thu Jan 17 2013 Dan Prince <dprince@redhat.com> 2013.1-0.l.g3
 - Add make to build requires.
-- Revert to Type=notify in systemd script.
+- Revert to Type=notify in systemd script. (Fixes startup on Fedora 17.)
 
 * Fri Jan 11 2013 Alan Pevec <apevec@redhat.com> 2013.1-0.2.g2
 - grizzly-2 milestone
