@@ -27,6 +27,7 @@ Source5:        openstack-keystone-sample-data
 Patch0001: 0001-match-egg-and-spec-requires.patch
 
 BuildArch:      noarch
+BuildRequires:  make
 BuildRequires:  python2-devel
 BuildRequires:  python-sphinx >= 1.0
 BuildRequires:  openstack-utils
@@ -209,6 +210,9 @@ fi
 %endif
 
 %changelog
+* Thu Jan 17 2013 Dan Prince <dprince@redhat.com> 2013.1-0.l.g3
+- Add make to build requires.
+
 * Fri Jan 11 2013 Alan Pevec <apevec@redhat.com> 2013.1-0.2.g2
 - grizzly-2 milestone
 
