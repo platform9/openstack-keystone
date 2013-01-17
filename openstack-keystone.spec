@@ -1,38 +1,40 @@
 #
-# This is 2012.1 essex rc1
+# This is 2013.1 grizzly-2 milestone
 #
-%global release_name essex
-%global release_letter rc
-%global milestone 1
-%global snapdate 20120323
-%global git_revno r2186
+%global release_name grizzly
+%global release_letter g
+%global milestone 2
 
-%global snaptag ~%{release_letter}%{milestone}~%{snapdate}.%{git_revno}
+%global with_doc %{!?_without_doc:1}%{?_without_doc:0}
 
 Name:           openstack-keystone
-Version:        2012.1
-Release:        0.12.%{release_letter}%{milestone}%{?dist}
+Version:        2013.1
+Release:        0.2.%{release_letter}%{milestone}%{?dist}
 Summary:        OpenStack Identity Service
 
 License:        ASL 2.0
 URL:            http://keystone.openstack.org/
+#Source0:        http://launchpad.net/keystone/%{release_name}/%{version}/+download/keystone-%{version}.tar.gz
 Source0:        http://launchpad.net/keystone/%{release_name}/%{release_name}-%{milestone}/+download/keystone-%{version}~%{release_letter}%{milestone}.tar.gz
-#Source0:        http://keystone.openstack.org/tarballs/keystone-%{version}%{snaptag}.tar.gz
 Source1:        openstack-keystone.logrotate
 Source2:        openstack-keystone.service
-Source3:        openstack-keystone-db-setup
-Source4:        openstack-config-set
 Source5:        openstack-keystone-sample-data
 
+
+#
+# patches_base=grizzly-2
+#
+Patch0001: 0001-match-egg-and-spec-requires.patch
+
 BuildArch:      noarch
-BuildRequires:  make
 BuildRequires:  python2-devel
 BuildRequires:  python-sphinx >= 1.0
+BuildRequires:  openstack-utils
 BuildRequires:  python-iniparse
 BuildRequires:  systemd-units
 
 Requires:       python-keystone = %{version}-%{release}
-Requires:       python-keystoneclient >= 0.1.1.24
+Requires:       python-keystoneclient >= 2012.1-0.4.e4
 
 Requires(post):   systemd-units
 Requires(preun):  systemd-units
@@ -51,23 +53,25 @@ Group:            Applications/System
 # python-keystone added in 2012.1-0.2.e3
 Conflicts:      openstack-keystone < 2012.1-0.2.e3
 
-Requires:       python-crypto
-Requires:       python-dateutil
+Provides:       python-keystone-auth-token
+Obsoletes:      python-keystone-auth-token
+# auth-token subpackage was removed to avoid issues like rhbz#868357
+# in Folsom auth-token does not work standalone anyway rhbz#844508
+# it will be back in Grizzly pythone-keystoneclient lp#1039567
+
 Requires:       python-eventlet
-Requires:       python-httplib2
 Requires:       python-ldap
 Requires:       python-lxml
 Requires:       python-memcached
 Requires:       python-migrate
-Requires:       python-paste
 Requires:       python-paste-deploy
-Requires:       python-paste-script
-Requires:       python-prettytable
 Requires:       python-routes
 Requires:       python-sqlalchemy
 Requires:       python-webob
 Requires:       python-passlib
 Requires:       MySQL-python
+Requires:       PyPAM
+Requires:       python-iso8601
 
 %description -n   python-keystone
 Keystone is a Python implementation of the OpenStack
@@ -75,23 +79,39 @@ Keystone is a Python implementation of the OpenStack
 
 This package contains the Keystone Python library.
 
+%if 0%{?with_doc}
+%package doc
+Summary:        Documentation for OpenStack Identity Service
+Group:          Documentation
+
+%description doc
+Keystone is a Python implementation of the OpenStack
+(http://www.openstack.org) identity service API.
+
+This package contains documentation for Keystone.
+%endif
+
 %prep
 %setup -q -n keystone-%{version}
 
-# change default configuration
-%{SOURCE4} etc/keystone.conf DEFAULT log_file %{_localstatedir}/log/keystone/keystone.log
-%{SOURCE4} etc/keystone.conf sql connection mysql://keystone:keystone@localhost/keystone
-%{SOURCE4} etc/keystone.conf catalog template_file %{_sysconfdir}/keystone/default_catalog.templates
-%{SOURCE4} etc/keystone.conf catalog driver keystone.catalog.backends.sql.Catalog
-%{SOURCE4} etc/keystone.conf identity driver keystone.identity.backends.sql.Identity
-%{SOURCE4} etc/keystone.conf token driver keystone.token.backends.sql.Token
-%{SOURCE4} etc/keystone.conf ec2 driver keystone.contrib.ec2.backends.sql.Ec2
+%patch0001 -p1
 
 find . \( -name .gitignore -o -name .placeholder \) -delete
 find keystone -name \*.py -exec sed -i '/\/usr\/bin\/env python/d' {} \;
 
 
 %build
+# change default configuration
+cp etc/keystone.conf.sample etc/keystone.conf
+openstack-config --set etc/keystone.conf DEFAULT log_file %{_localstatedir}/log/keystone/keystone.log
+openstack-config --set etc/keystone.conf sql connection mysql://keystone:keystone@localhost/keystone
+openstack-config --set etc/keystone.conf catalog template_file %{_sysconfdir}/keystone/default_catalog.templates
+openstack-config --set etc/keystone.conf catalog driver keystone.catalog.backends.sql.Catalog
+openstack-config --set etc/keystone.conf identity driver keystone.identity.backends.sql.Identity
+openstack-config --set etc/keystone.conf token driver keystone.token.backends.sql.Token
+openstack-config --set etc/keystone.conf ec2 driver keystone.contrib.ec2.backends.sql.Ec2
+openstack-config --set etc/keystone.conf DEFAULT onready keystone.common.systemd
+
 %{__python} setup.py build
 
 %install
@@ -103,18 +123,14 @@ rm -fr %{buildroot}%{python_sitelib}/run_tests.*
 
 install -d -m 755 %{buildroot}%{_sysconfdir}/keystone
 install -p -D -m 640 etc/keystone.conf %{buildroot}%{_sysconfdir}/keystone/keystone.conf
+install -p -D -m 640 etc/logging.conf.sample %{buildroot}%{_sysconfdir}/keystone/logging.conf
 install -p -D -m 640 etc/default_catalog.templates %{buildroot}%{_sysconfdir}/keystone/default_catalog.templates
 install -p -D -m 640 etc/policy.json %{buildroot}%{_sysconfdir}/keystone/policy.json
 install -p -D -m 644 %{SOURCE1} %{buildroot}%{_sysconfdir}/logrotate.d/openstack-keystone
 install -p -D -m 644 %{SOURCE2} %{buildroot}%{_unitdir}/openstack-keystone.service
-# Install database setup helper script.
-install -p -D -m 755 %{SOURCE3} %{buildroot}%{_bindir}/openstack-keystone-db-setup
 # Install sample data script.
 install -p -D -m 755 tools/sample_data.sh %{buildroot}%{_datadir}/%{name}/sample_data.sh
 install -p -D -m 755 %{SOURCE5} %{buildroot}%{_bindir}/openstack-keystone-sample-data
-
-# Install configuration helper script.
-install -p -D -m 755 %{SOURCE4} %{buildroot}%{_bindir}/openstack-config-set
 
 install -d -m 755 %{buildroot}%{_sharedstatedir}/keystone
 install -d -m 755 %{buildroot}%{_localstatedir}/log/keystone
@@ -122,19 +138,24 @@ install -d -m 755 %{buildroot}%{_localstatedir}/log/keystone
 # docs generation requires everything to be installed first
 export PYTHONPATH="$( pwd ):$PYTHONPATH"
 pushd doc
-if [ -x /usr/bin/sphix-apidoc ]; then
+if [ -x /usr/bin/sphinx-apidoc ]; then
     make html
+    make man
 else
     make html SPHINXAPIDOC=echo
+    make man SPHINXAPIDOC=echo
 fi
+mkdir -p %{buildroot}%{_mandir}/man1
+install -p -D -m 644 build/man/*.1 %{buildroot}%{_mandir}/man1/
 popd
 # Fix hidden-file-or-dir warnings
 rm -fr doc/build/html/.doctrees doc/build/html/.buildinfo
 
 %pre
-getent group keystone >/dev/null || groupadd -r keystone
+# 163:163 for keystone (openstack-keystone) - rhbz#752842
+getent group keystone >/dev/null || groupadd -r --gid 163 keystone
 getent passwd keystone >/dev/null || \
-useradd -r -g keystone -d %{_sharedstatedir}/keystone -s /sbin/nologin \
+useradd --uid 163 -r -g keystone -d %{_sharedstatedir}/keystone -s /sbin/nologin \
 -c "OpenStack Keystone Daemons" keystone
 exit 0
 
@@ -161,17 +182,15 @@ fi
 %files
 %doc LICENSE
 %doc README.rst
-%doc doc/build/html
+%{_mandir}/man1/keystone*.1.gz
 %{_bindir}/keystone-all
 %{_bindir}/keystone-manage
-%{_bindir}/openstack-config-set
-%{_bindir}/openstack-keystone-db-setup
 %{_bindir}/openstack-keystone-sample-data
 %{_datadir}/%{name}
-%{_datadir}/%{name}/sample_data.sh
 %{_unitdir}/openstack-keystone.service
-%dir %{_sysconfdir}/keystone
+%dir %attr(0750, root, keystone) %{_sysconfdir}/keystone
 %config(noreplace) %attr(-, root, keystone) %{_sysconfdir}/keystone/keystone.conf
+%config(noreplace) %attr(-, root, keystone) %{_sysconfdir}/keystone/logging.conf
 %config(noreplace) %attr(-, root, keystone) %{_sysconfdir}/keystone/default_catalog.templates
 %config(noreplace) %attr(-, keystone, keystone) %{_sysconfdir}/keystone/policy.json
 %config(noreplace) %{_sysconfdir}/logrotate.d/openstack-keystone
@@ -184,16 +203,76 @@ fi
 %{python_sitelib}/keystone
 %{python_sitelib}/keystone-%{version}-*.egg-info
 
+%if 0%{?with_doc}
+%files doc
+%doc LICENSE doc/build/html
+%endif
+
 %changelog
+* Fri Jan 11 2013 Alan Pevec <apevec@redhat.com> 2013.1-0.2.g2
+- grizzly-2 milestone
 
-* Fri Aug 31 2012 Dan Prince <dprince@redhat.com> 2012.2-0.12.f3
-- Update requires for keystoneclient to use new versioning.
+* Thu Nov 22 2012 Alan Pevec <apevec@redhat.com> 2013.1-0.1.g1
+- grizzly-1 milestone
 
-* Tue Jul 24 2012 Dan Prince <dprince@redhat.com> 2012.2-0.12.f3
-- Add build requires for make.
+* Fri Nov 16 2012 Alan Pevec <apevec@redhat.com> 2012.2-5
+- fix /etc/keystone directory permission CVE-2012-5483 (rhbz#873447)
+
+* Mon Nov 12 2012 Alan Pevec <apevec@redhat.com> 2012.2-4
+- readd iso8601 dependency (from openstack-common timeutils)
+
+* Fri Nov 09 2012 Alan Pevec <apevec@redhat.com> 2012.2-3
+- remove auth-token subpackage (rhbz#868357)
+
+* Thu Nov 08 2012 Alan Pevec <apevec@redhat.com> 2012.2-2
+- Fix default port for identity.internalURL in sample script
+
+* Thu Sep 27 2012 Alan Pevec <apevec@redhat.com> 2012.2-1
+- Update to folsom final
+
+* Wed Sep 26 2012 Alan Pevec <apevec@redhat.com> 2012.2-0.9.rc2
+- folsom rc2
+
+* Fri Sep 21 2012 Alan Pevec <apevec@redhat.com> 2012.2-0.8.rc1
+- fix systemd notification (rhbz#858188)
+
+* Fri Sep 14 2012 Alan Pevec <apevec@redhat.com> 2012.2-0.7.rc1
+- folsom rc1 (CVE-2012-4413)
+
+* Thu Aug 30 2012 Alan Pevec <apevec@redhat.com> 2012.2-0.6.f3
+- Require authz to update user's tenant (CVE-2012-3542)
+
+* Wed Aug 29 2012 Alan Pevec <apevec@redhat.com> 2012.2-0.5.f3
+- allow middleware configuration from app config
+
+* Mon Aug 20 2012 Alan Pevec <apevec@redhat.com> 2012.2-0.4.f3
+- folsom-3 milestone
+
+* Fri Jul 20 2012 Fedora Release Engineering <rel-eng@lists.fedoraproject.org> - 2012.2-0.3.f2
+- Rebuilt for https://fedoraproject.org/wiki/Fedora_18_Mass_Rebuild
+
+* Fri Jul 06 2012 Alan Pevec <apevec@redhat.com> 2012.2-0.2.f2
+- folsom-2 milestone (CVE-2012-3426)
+
+* Fri May 25 2012 Alan Pevec <apevec@redhat.com> 2012.2-0.1.f1
+- folsom-1 milestone
+
+* Thu May 24 2012 Alan Pevec <apevec@redhat.com> 2012.1-3
+- python-keystone-auth-token subpackage (rhbz#824034)
+- use reserved user id for keystone (rhbz#752842)
+
+* Mon May 21 2012 Alan Pevec <apevec@redhat.com> 2012.1-2
+- Sync up with Essex stable branch
+- Remove dependencies no loner needed by Essex
+
+* Thu Apr 05 2012 Alan Pevec <apevec@redhat.com> 2012.1-1
+- Essex release
+
+* Wed Apr 04 2012 Alan Pevec <apevec@redhat.com> 2012.1-0.13.rc2
+- essex rc2
 
 * Sat Mar 24 2012 Alan Pevec <apevec@redhat.com> 2012.1-0.12.rc1
-- upate to final essex rc1
+- update to final essex rc1
 
 * Wed Mar 21 2012 Alan Pevec <apevec@redhat.com> 2012.1-0.11.rc1
 - essex rc1
