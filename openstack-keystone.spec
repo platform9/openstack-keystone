@@ -34,6 +34,7 @@ BuildRequires:  openstack-utils
 BuildRequires:  python-iniparse
 BuildRequires:  systemd-units
 
+Requires:       python-oslo-config
 Requires:       python-keystone = %{version}-%{release}
 Requires:       python-keystoneclient >= 2012.1-0.4.e4
 
@@ -210,6 +211,9 @@ fi
 %endif
 
 %changelog
+* Tue Feb 19 2013 Dan Prince <dprince@redhat.com> 2013.1-0.l.g3
+- Add requires for python-oslo-config.
+
 * Thu Jan 17 2013 Dan Prince <dprince@redhat.com> 2013.1-0.l.g3
 - Add make to build requires.
 - Revert to Type=notify in systemd script. (Fixes startup on Fedora 17.)
