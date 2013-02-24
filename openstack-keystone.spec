@@ -9,7 +9,7 @@
 
 Name:           openstack-keystone
 Version:        2013.1
-Release:        0.4.%{release_letter}%{milestone}%{?dist}
+Release:        0.5.%{release_letter}%{milestone}%{?dist}
 Summary:        OpenStack Identity Service
 
 License:        ASL 2.0
@@ -40,7 +40,7 @@ BuildRequires:  python-paste-deploy1.5
 BuildRequires:  python-routes1.12
 
 Requires:       python-keystone = %{version}-%{release}
-Requires:       python-keystoneclient >= 2012.1-0.4.e4
+Requires:       python-keystoneclient >= 1:0.2.0
 
 Requires(post):   chkconfig
 Requires(postun): initscripts
@@ -57,14 +57,6 @@ This package contains the Keystone daemon.
 %package -n       python-keystone
 Summary:          Keystone Python libraries
 Group:            Applications/System
-# python-keystone added in 2012.1-0.2.e3
-Conflicts:      openstack-keystone < 2012.1-0.2.e3
-
-Provides:       python-keystone-auth-token
-Obsoletes:      python-keystone-auth-token
-# auth-token subpackage was removed to avoid issues like rhbz#868357
-# in Folsom auth-token does not work standalone anyway rhbz#844508
-# it will be back in Grizzly pythone-keystoneclient lp#1039567
 
 Requires:       python-eventlet
 Requires:       python-ldap
@@ -80,6 +72,7 @@ Requires:       python-setuptools
 Requires:       MySQL-python
 Requires:       PyPAM
 Requires:       python-iso8601
+Requires:       python-oslo-config
 
 %description -n   python-keystone
 Keystone is a Python implementation of the OpenStack
@@ -240,6 +233,9 @@ fi
 %endif
 
 %changelog
+* Sun Feb 24 2013 Alan Pevec <apevec@redhat.com> 2013.1-0.5.g3
+- update dependencies
+
 * Sat Feb 23 2013 Alan Pevec <apevec@redhat.com> 2013.1-0.4.g3
 - grizzly-3 milestone
 
