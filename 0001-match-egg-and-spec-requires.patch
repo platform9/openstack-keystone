@@ -21,7 +21,7 @@ index de4a1b9..de6b799 100644
 +++ b/tools/pip-requires
 @@ -1,6 +1,10 @@
  # keystone dependencies
--pam==0.1.4
+-pam>=0.1.4
 -WebOb==1.2.3
 +# adjust deps so that generated egg-info matches Requires: in spec
 +PyPAM
