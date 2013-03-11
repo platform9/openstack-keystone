@@ -9,7 +9,7 @@
 
 Name:           openstack-keystone
 Version:        2013.1
-Release:        0.5.%{release_letter}%{milestone}%{?dist}
+Release:        0.7.%{release_letter}%{milestone}%{?dist}
 Summary:        OpenStack Identity Service
 
 License:        ASL 2.0
@@ -73,6 +73,7 @@ Requires:       MySQL-python
 Requires:       PyPAM
 Requires:       python-iso8601
 Requires:       python-oslo-config
+Requires:       openssl
 
 %description -n   python-keystone
 Keystone is a Python implementation of the OpenStack
@@ -233,6 +234,12 @@ fi
 %endif
 
 %changelog
+* Mon Mar 11 2013 Alan Pevec <apevec@redhat.com> 2013.1-0.7.g3
+- openssl is required for PKI tokens rhbz#918757
+
+* Mon Mar 11 2013 Alan Pevec <apevec@redhat.com> 2013.1-0.6.g3
+- remove python-sqlalchemy restriction
+
 * Sun Feb 24 2013 Alan Pevec <apevec@redhat.com> 2013.1-0.5.g3
 - update dependencies
 
