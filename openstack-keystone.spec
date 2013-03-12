@@ -1,42 +1,38 @@
 #
-# This is 2013.1 grizzly-2 milestone
+# This is 2013.1 grizzly-3 milestone
 #
 %global release_name grizzly
 %global release_letter g
-%global milestone 2
+%global milestone 3
 
 %global with_doc %{!?_without_doc:1}%{?_without_doc:0}
 
 Name:           openstack-keystone
 Version:        2013.1
-Release:        0.2.%{release_letter}%{milestone}%{?dist}
+Release:        0.7.%{release_letter}%{milestone}%{?dist}
 Summary:        OpenStack Identity Service
 
 License:        ASL 2.0
 URL:            http://keystone.openstack.org/
 #Source0:        http://launchpad.net/keystone/%{release_name}/%{version}/+download/keystone-%{version}.tar.gz
-Source0:        http://launchpad.net/keystone/%{release_name}/%{release_name}-%{milestone}/+download/keystone-%{version}~%{release_letter}%{milestone}.tar.gz
+Source0:        http://launchpad.net/keystone/%{release_name}/%{release_name}-%{milestone}/+download/keystone-%{version}.%{release_letter}%{milestone}.tar.gz
 Source1:        openstack-keystone.logrotate
 Source2:        openstack-keystone.service
 Source5:        openstack-keystone-sample-data
 
 
 #
-# patches_base=grizzly-2
+# patches_base=grizzly-3
 #
-Patch0001: 0001-match-egg-and-spec-requires.patch
 
 BuildArch:      noarch
-BuildRequires:  make
 BuildRequires:  python2-devel
 BuildRequires:  python-sphinx >= 1.0
 BuildRequires:  openstack-utils
-BuildRequires:  python-iniparse
 BuildRequires:  systemd-units
 
-Requires:       python-oslo-config
 Requires:       python-keystone = %{version}-%{release}
-Requires:       python-keystoneclient >= 2012.1-0.4.e4
+Requires:       python-keystoneclient >= 1:0.2.0
 
 Requires(post):   systemd-units
 Requires(preun):  systemd-units
@@ -52,14 +48,6 @@ This package contains the Keystone daemon.
 %package -n       python-keystone
 Summary:          Keystone Python libraries
 Group:            Applications/System
-# python-keystone added in 2012.1-0.2.e3
-Conflicts:      openstack-keystone < 2012.1-0.2.e3
-
-Provides:       python-keystone-auth-token
-Obsoletes:      python-keystone-auth-token
-# auth-token subpackage was removed to avoid issues like rhbz#868357
-# in Folsom auth-token does not work standalone anyway rhbz#844508
-# it will be back in Grizzly pythone-keystoneclient lp#1039567
 
 Requires:       python-eventlet
 Requires:       python-ldap
@@ -74,6 +62,8 @@ Requires:       python-passlib
 Requires:       MySQL-python
 Requires:       PyPAM
 Requires:       python-iso8601
+Requires:       python-oslo-config
+Requires:       openssl
 
 %description -n   python-keystone
 Keystone is a Python implementation of the OpenStack
@@ -96,10 +86,15 @@ This package contains documentation for Keystone.
 %prep
 %setup -q -n keystone-%{version}
 
-%patch0001 -p1
+sed -i 's/2013.1.g3/2013.1/' PKG-INFO
 
 find . \( -name .gitignore -o -name .placeholder \) -delete
 find keystone -name \*.py -exec sed -i '/\/usr\/bin\/env python/d' {} \;
+# Remove bundled egg-info
+rm -rf keystone.egg-info
+# let RPM handle deps
+sed -i '/setup_requires/d; /install_requires/d; /dependency_links/d' setup.py
+
 
 
 %build
@@ -211,12 +206,20 @@ fi
 %endif
 
 %changelog
-* Tue Feb 19 2013 Dan Prince <dprince@redhat.com> 2013.1-0.l.g3
-- Add requires for python-oslo-config.
+* Mon Mar 11 2013 Alan Pevec <apevec@redhat.com> 2013.1-0.7.g3
+- openssl is required for PKI tokens rhbz#918757
 
-* Thu Jan 17 2013 Dan Prince <dprince@redhat.com> 2013.1-0.l.g3
-- Add make to build requires.
-- Revert to Type=notify in systemd script. (Fixes startup on Fedora 17.)
+* Mon Mar 11 2013 Alan Pevec <apevec@redhat.com> 2013.1-0.6.g3
+- remove python-sqlalchemy restriction
+
+* Sun Feb 24 2013 Alan Pevec <apevec@redhat.com> 2013.1-0.5.g3
+- update dependencies
+
+* Sat Feb 23 2013 Alan Pevec <apevec@redhat.com> 2013.1-0.4.g3
+- grizzly-3 milestone
+
+* Thu Feb 14 2013 Fedora Release Engineering <rel-eng@lists.fedoraproject.org> - 2013.1-0.3.g2
+- Rebuilt for https://fedoraproject.org/wiki/Fedora_19_Mass_Rebuild
 
 * Fri Jan 11 2013 Alan Pevec <apevec@redhat.com> 2013.1-0.2.g2
 - grizzly-2 milestone
