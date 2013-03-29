@@ -30,9 +30,9 @@
 +# TODO: See can we get pkg_resources to do the right thing directly
 +import paste
 +paste.__path__.insert(0, paste.__path__.pop(-1))
---- keystone-2013.1/bin/keystone-all.orig	2012-11-22 10:19:01.000000000 +0100
-+++ keystone-2013.1/bin/keystone-all	2012-12-03 19:23:00.283712287 +0100
-@@ -19,13 +19,12 @@
+--- keystone-2013.1/bin/keystone-all.orig	2013-03-28 10:20:14.000000000 +0100
++++ keystone-2013.1/bin/keystone-all	2013-03-29 02:16:05.443160637 +0100
+@@ -19,14 +19,14 @@
      sys.path.insert(0, possible_topdir)
  
  
@@ -42,8 +42,10 @@
  from keystone.common import wsgi
  from keystone.common import utils
  from keystone.openstack.common import importutils
+ from keystone.openstack.common import version
  
 +from paste import deploy
++
  
  CONF = config.CONF
  
