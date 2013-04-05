@@ -1,21 +1,18 @@
 #
-# This is 2013.1 grizzly rc3
+# This is 2013.1 grizzly release
 #
 %global release_name grizzly
-%global release_letter rc
-%global milestone 3
 
 %global with_doc %{!?_without_doc:1}%{?_without_doc:0}
 
 Name:           openstack-keystone
 Version:        2013.1
-Release:        0.10.%{release_letter}%{milestone}%{?dist}
+Release:        1%{?dist}
 Summary:        OpenStack Identity Service
 
 License:        ASL 2.0
 URL:            http://keystone.openstack.org/
-#Source0:        http://launchpad.net/keystone/%{release_name}/%{version}/+download/keystone-%{version}.tar.gz
-Source0:        http://launchpad.net/keystone/%{release_name}/%{release_name}-%{release_letter}%{milestone}/+download/keystone-%{version}.%{release_letter}%{milestone}.tar.gz
+Source0:        http://launchpad.net/keystone/%{release_name}/%{version}/+download/keystone-%{version}.tar.gz
 Source1:        openstack-keystone.logrotate
 Source2:        openstack-keystone.init
 Source3:        openstack-keystone.upstart
@@ -24,7 +21,7 @@ Source5:        openstack-keystone-sample-data
 Patch0:       openstack-keystone-newdeps.patch
 
 #
-# patches_base=2013.1.rc3
+# patches_base=2013.1
 #
 
 BuildArch:      noarch
@@ -94,10 +91,8 @@ This package contains documentation for Keystone.
 %endif
 
 %prep
-%setup -q -n keystone-%{version}.%{release_letter}%{milestone}
+%setup -q -n keystone-%{version}
 %patch0 -p1 -b .newdeps
-
-sed -i 's/2013.1.rc3/2013.1/' PKG-INFO
 
 find . \( -name .gitignore -o -name .placeholder \) -delete
 find keystone -name \*.py -exec sed -i '/\/usr\/bin\/env python/d' {} \;
@@ -234,6 +229,9 @@ fi
 %endif
 
 %changelog
+* Thu Apr 04 2013 Alan Pevec <apevec@redhat.com> 2013.1-1
+- Update to grizzly final
+
 * Wed Apr 03 2013 Alan Pevec <apevec@redhat.com> 2013.1-0.10.rc3
 - grizzly rc3
 
