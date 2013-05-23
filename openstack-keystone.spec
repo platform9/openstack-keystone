@@ -30,6 +30,8 @@ BuildRequires:  python2-devel
 BuildRequires:  python-sphinx >= 1.0
 BuildRequires:  openstack-utils
 BuildRequires:  systemd-units
+BuildRequires:    python-pbr
+BuildRequires:    python-d2to1
 
 Requires:       python-keystone = %{version}-%{release}
 Requires:       python-keystoneclient >= 1:0.2.0
@@ -64,6 +66,7 @@ Requires:       PyPAM
 Requires:       python-iso8601
 Requires:       python-oslo-config
 Requires:       openssl
+Requires:       python-pbr
 
 %description -n   python-keystone
 Keystone is a Python implementation of the OpenStack
@@ -93,9 +96,8 @@ find keystone -name \*.py -exec sed -i '/\/usr\/bin\/env python/d' {} \;
 # Remove bundled egg-info
 rm -rf keystone.egg-info
 # let RPM handle deps
-sed -i '/setup_requires/d; /install_requires/d; /dependency_links/d' setup.py
-
-
+# Nuke requirements from pip-requires (which requires specific versions, etc)
+echo "" > tools/pip-requires
 
 %build
 # change default configuration
@@ -206,6 +208,9 @@ fi
 %endif
 
 %changelog
+* Thu Mar 23 2013 Dan Prince <dprince@redhat.com> 2013.1-0.7.g3
+- Updated to use pbr.
+
 * Mon Mar 11 2013 Alan Pevec <apevec@redhat.com> 2013.1-0.7.g3
 - openssl is required for PKI tokens rhbz#918757
 
