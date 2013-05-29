@@ -67,6 +67,7 @@ Requires:       python-iso8601
 Requires:       python-oslo-config
 Requires:       openssl
 Requires:       python-pbr
+Requires:       python-d2to1
 
 %description -n   python-keystone
 Keystone is a Python implementation of the OpenStack
@@ -210,6 +211,9 @@ fi
 %endif
 
 %changelog
+* Wed May 29 2013 Dan Prince <dprince@redhat.com> 2013.1-0.7.g3
+- Add missing requirement on d2to1.
+
 * Tue May 28 2013 Dan Prince <dprince@redhat.com> 2013.1-0.7.g3
 - Add new keystone-paste.ini file.
 
