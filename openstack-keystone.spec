@@ -211,7 +211,7 @@ fi
 %endif
 
 %changelog
-* Wed June 5 2013 Dan Prince <dprince@redhat.com> 2013.1-0.7.g3
+* Wed Jun 5 2013 Dan Prince <dprince@redhat.com> 2013.1-0.7.g3
 - Updated to use requirements.txt instead of pip-requires.
 
 * Wed May 29 2013 Dan Prince <dprince@redhat.com> 2013.1-0.7.g3
