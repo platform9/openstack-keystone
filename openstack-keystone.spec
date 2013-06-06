@@ -97,8 +97,8 @@ find keystone -name \*.py -exec sed -i '/\/usr\/bin\/env python/d' {} \;
 # Remove bundled egg-info
 rm -rf keystone.egg-info
 # let RPM handle deps
-# Nuke requirements from pip-requires (which requires specific versions, etc)
-echo "" > tools/pip-requires
+# Nuke requirements (which requires specific versions, etc)
+echo "" > requirements.txt
 
 %build
 # change default configuration
@@ -211,6 +211,9 @@ fi
 %endif
 
 %changelog
+* Wed June 5 2013 Dan Prince <dprince@redhat.com> 2013.1-0.7.g3
+- Updated to use requirements.txt instead of pip-requires.
+
 * Wed May 29 2013 Dan Prince <dprince@redhat.com> 2013.1-0.7.g3
 - Add missing requirement on d2to1.
 
