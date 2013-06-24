@@ -1,18 +1,20 @@
 #
-# This is 2013.1.1 stable/grizzly release
+# This is 2013.2 havana-1 milestone
 #
-%global release_name grizzly
+%global release_name havana
+%global milestone 1
 
 %global with_doc %{!?_without_doc:1}%{?_without_doc:0}
 
 Name:           openstack-keystone
-Version:        2013.1.1
-Release:        1%{?dist}
+Version:        2013.2
+Release:        0.3.b%{milestone}%{?dist}
 Summary:        OpenStack Identity Service
 
 License:        ASL 2.0
 URL:            http://keystone.openstack.org/
-Source0:        http://launchpad.net/keystone/%{release_name}/%{version}/+download/keystone-%{version}.tar.gz
+#Source0:        http://launchpad.net/keystone/%{release_name}/%{version}/+download/keystone-%{version}.tar.gz
+Source0:        http://launchpad.net/keystone/%{release_name}/%{release_name}-%{milestone}/+download/keystone-%{version}.b%{milestone}.tar.gz
 Source1:        openstack-keystone.logrotate
 Source2:        openstack-keystone.init
 Source3:        openstack-keystone.upstart
@@ -21,15 +23,17 @@ Source5:        openstack-keystone-sample-data
 Patch0:       openstack-keystone-newdeps.patch
 
 #
-# patches_base=2013.1.1
+# patches_base=2013.2.b1
 #
+Patch0001: 0001-Force-simple-Bind-for-authentication.patch
 
 BuildArch:      noarch
 
 BuildRequires:  python2-devel
 BuildRequires:  python-sphinx10
 BuildRequires:  openstack-utils
-BuildRequires:  python-iniparse
+BuildRequires:  python-pbr
+BuildRequires:  python-d2to1
 # These are required to build due to the requirements check added
 BuildRequires:  python-sqlalchemy0.7
 BuildRequires:  python-webob1.0
@@ -71,6 +75,8 @@ Requires:       PyPAM
 Requires:       python-iso8601
 Requires:       python-oslo-config
 Requires:       openssl
+Requires:       python-pbr
+Requires:       python-d2to1
 
 %description -n   python-keystone
 Keystone is a Python implementation of the OpenStack
@@ -91,8 +97,11 @@ This package contains documentation for Keystone.
 %endif
 
 %prep
-%setup -q -n keystone-%{version}
+%setup -q -n keystone-%{version}.b%{milestone}
 %patch0 -p1 -b .newdeps
+
+%patch0001 -p1
+sed -i 's/%{version}.b%{milestone}/%{version}/' PKG-INFO
 
 find . \( -name .gitignore -o -name .placeholder \) -delete
 find keystone -name \*.py -exec sed -i '/\/usr\/bin\/env python/d' {} \;
@@ -127,6 +136,7 @@ rm -fr %{buildroot}%{python_sitelib}/run_tests.*
 
 install -d -m 755 %{buildroot}%{_sysconfdir}/keystone
 install -p -D -m 640 etc/keystone.conf %{buildroot}%{_sysconfdir}/keystone/keystone.conf
+install -p -D -m 640 etc/keystone-paste.ini %{buildroot}%{_sysconfdir}/keystone/keystone-paste.ini
 install -p -D -m 640 etc/logging.conf.sample %{buildroot}%{_sysconfdir}/keystone/logging.conf
 install -p -D -m 640 etc/default_catalog.templates %{buildroot}%{_sysconfdir}/keystone/default_catalog.templates
 install -p -D -m 640 etc/policy.json %{buildroot}%{_sysconfdir}/keystone/policy.json
@@ -209,12 +219,14 @@ fi
 %{_initrddir}/openstack-keystone
 %dir %attr(0750, root, keystone) %{_sysconfdir}/keystone
 %config(noreplace) %attr(-, root, keystone) %{_sysconfdir}/keystone/keystone.conf
+%config(noreplace) %attr(-, root, keystone) %{_sysconfdir}/keystone/keystone-paste.ini
 %config(noreplace) %attr(-, root, keystone) %{_sysconfdir}/keystone/logging.conf
 %config(noreplace) %attr(-, root, keystone) %{_sysconfdir}/keystone/default_catalog.templates
 %config(noreplace) %attr(-, keystone, keystone) %{_sysconfdir}/keystone/policy.json
 %config(noreplace) %{_sysconfdir}/logrotate.d/openstack-keystone
 %dir %attr(-, keystone, keystone) %{_sharedstatedir}/keystone
 %dir %attr(-, keystone, keystone) %{_localstatedir}/log/keystone
+%dir %attr(0750, keystone, keystone) %{_localstatedir}/log/keystone
 %dir %attr(-, keystone, keystone) %{_localstatedir}/run/keystone
 
 %files -n python-keystone
@@ -229,6 +241,15 @@ fi
 %endif
 
 %changelog
+* Mon Jun 24 2013 apevec@redhat.com 2013.2-0.3.b1
+- restrict /var/log/keystone/ rhbz#956814
+
+* Sat Jun 22 2013 apevec@redhat.com 2013.2-0.2.b1
+- Force simple Bind for authentication CVE-2013-2157
+
+* Fri Jun 07 2013 Alan Pevec <apevec@redhat.com> 2013.2-0.1.h1
+- havana-1 milestone
+
 * Fri May 10 2013 Alan Pevec <apevec@redhat.com> 2013.1.1-1
 - updated to stable grizzly 2013.1.1 release CVE-2013-2006 CVE-2013-2059
 
