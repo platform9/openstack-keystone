@@ -97,11 +97,11 @@ This package contains documentation for Keystone.
 %endif
 
 %prep
-%setup -q -n keystone-%{version}.b%{milestone}
+%setup -q -n keystone-%{version}
 %patch0 -p1 -b .newdeps
 
 %patch0001 -p1
-sed -i 's/%{version}.b%{milestone}/%{version}/' PKG-INFO
+#sed -i 's/%{version}.b%{milestone}/%{version}/' PKG-INFO
 
 find . \( -name .gitignore -o -name .placeholder \) -delete
 find keystone -name \*.py -exec sed -i '/\/usr\/bin\/env python/d' {} \;
@@ -241,6 +241,9 @@ fi
 %endif
 
 %changelog
+* Mon Jun 24 2013 dprince@redhat.com 2013.2-0.3.b1
+- Drop milestone from setup version.
+
 * Mon Jun 24 2013 apevec@redhat.com 2013.2-0.3.b1
 - restrict /var/log/keystone/ rhbz#956814
 
