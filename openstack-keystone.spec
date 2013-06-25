@@ -22,11 +22,6 @@ Source5:        openstack-keystone-sample-data
 
 Patch0:       openstack-keystone-newdeps.patch
 
-#
-# patches_base=2013.2.b1
-#
-Patch0001: 0001-Force-simple-Bind-for-authentication.patch
-
 BuildArch:      noarch
 
 BuildRequires:  python2-devel
@@ -100,7 +95,6 @@ This package contains documentation for Keystone.
 %setup -q -n keystone-%{version}
 %patch0 -p1 -b .newdeps
 
-%patch0001 -p1
 #sed -i 's/%{version}.b%{milestone}/%{version}/' PKG-INFO
 
 find . \( -name .gitignore -o -name .placeholder \) -delete
@@ -241,6 +235,10 @@ fi
 %endif
 
 %changelog
+* Tue Jun 25 2013 dprince@redhat.com 2013.2-0.3.b1
+- Drop Force-simple-Bind-for-authentication patch (it landed).
+- Minor updates to openstack-keystone-newdeps.patch
+
 * Mon Jun 24 2013 dprince@redhat.com 2013.2-0.3.b1
 - Drop milestone from setup version.
 
