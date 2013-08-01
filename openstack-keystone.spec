@@ -8,7 +8,7 @@
 
 Name:           openstack-keystone
 Version:        2013.2
-Release:        0.5.b%{milestone}%{?dist}
+Release:        0.6.b%{milestone}%{?dist}
 Summary:        OpenStack Identity Service
 
 License:        ASL 2.0
@@ -74,6 +74,7 @@ Requires:       python-pbr
 Requires:       python-d2to1
 Requires:       python-netaddr
 Requires:       python-six
+Requires:       python-oauth2
 
 %description -n   python-keystone
 Keystone is a Python implementation of the OpenStack
@@ -237,6 +238,9 @@ fi
 %endif
 
 %changelog
+* Thu Aug  1 2013 Mark McLoughlin <markmc@redhat.com> - 2013.2-0.5.b1
+- Require python-oauth2 in preparation for https://review.openstack.org/29130
+
 * Tue Jul 30 2013 pbrady@redhat.com 2013.2-0.5.b1
 - Add new 'netaddr' and 'six' dependencies from oslo jsonutils
 
