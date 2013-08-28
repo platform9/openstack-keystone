@@ -71,7 +71,7 @@ Requires:       python-d2to1
 Requires:       python-netaddr
 Requires:       python-six
 Requires:       python-oauth2
-Requires:       python-dogpile-cache
+Requires:       python-dogpile-cache >= 0.5.0
 
 %description -n   python-keystone
 Keystone is a Python implementation of the OpenStack
