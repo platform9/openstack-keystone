@@ -19,6 +19,25 @@ pidfile="/var/run/$prog/$prog.pid"
 
 lockfile=/var/lock/subsys/$prog
 
+keystone_available()
+{
+    keystone discover 2>&1 | grep -qFi "Keystone found"
+}
+
+# Wait at most 10s for the service to become available
+wait_until_keystone_available()
+{
+    tries=0
+    until keystone_available; do
+        rh_status_q || return 1
+        tries=$(($tries + 1))
+        [ $tries -eq 20 ] && { echo 'Aborting wait for keystone to start' >&2; return 1; }
+        sleep .5
+    done
+
+    return 0;
+}
+
 start() {
     [ -x $exec ] || exit 5
     [ -f $config ] || exit 6
@@ -27,6 +46,7 @@ start() {
     retval=$?
     echo
     [ $retval -eq 0 ] && touch $lockfile
+    [ $retval -eq 0 ] && wait_until_keystone_available
     return $retval
 }
 
