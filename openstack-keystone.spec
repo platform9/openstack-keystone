@@ -75,7 +75,7 @@ Requires:       python-setuptools
 Requires:       MySQL-python
 Requires:       PyPAM
 Requires:       python-iso8601
-Requires:       python-oslo-config >= 1:1.2.0
+Requires:       python-oslo-config
 Requires:       openssl
 Requires:       python-netaddr
 Requires:       python-six
@@ -246,6 +246,7 @@ fi
 %changelog
 * Tue Sep 10 2013 Dan Prince <dprince@redhat.com> - 2013.2-0.10.b3
 - Remove requirements files.
+- Drop python-oslo-config version requirement.
 
 * Mon Sep 09 2013 Alan Pevec <apevec@redhat.com> - 2013.2-0.10.b3
 - havana-3 milestone
