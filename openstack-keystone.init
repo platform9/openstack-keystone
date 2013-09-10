@@ -13,6 +13,7 @@
 prog=keystone
 exec="/usr/bin/$prog-all"
 config="/etc/$prog/$prog.conf"
+distconfig="/usr/share/$prog/$prog-dist.conf"
 pidfile="/var/run/$prog/$prog.pid"
 
 [ -e /etc/sysconfig/$prog ] && . /etc/sysconfig/$prog
@@ -42,7 +43,7 @@ start() {
     [ -x $exec ] || exit 5
     [ -f $config ] || exit 6
     echo -n $"Starting $prog: "
-    daemon --user keystone --pidfile $pidfile "$exec --config-file $config &>/dev/null & echo \$! > $pidfile"
+    daemon --user keystone --pidfile $pidfile "$exec --config-file $distconfig --config-file $config &>/dev/null & echo \$! > $pidfile"
     retval=$?
     echo
     [ $retval -eq 0 ] && touch $lockfile
