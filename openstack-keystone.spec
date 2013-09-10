@@ -109,6 +109,7 @@ sed -i '/setup_requires/d; /install_requires/d; /dependency_links/d' setup.py
 
 sed -i s/REDHATKEYSTONEVERSION/%{version}/ bin/keystone-all keystone/cli.py
 
+rm -rf {test-,}requirements.txt tools/{pip,test}-requires
 
 %build
 cp etc/keystone.conf.sample etc/keystone.conf
@@ -216,6 +217,9 @@ fi
 %endif
 
 %changelog
+* Tue Sep 10 2013 Dan Prince <dprince@redhat.com> - 2013.2-0.9.b3
+- Remove requirements files.
+
 * Mon Sep 09 2013 Alan Pevec <apevec@redhat.com> - 2013.2-0.9.b3
 - havana-3 milestone
 - drop pbr run-time dependency
