@@ -69,7 +69,7 @@ Requires:       python-iso8601
 Requires:       python-oslo-config
 Requires:       openssl
 Requires:       python-netaddr
-Requires:       python-six
+Requires:       python-six >= 1.4.1
 Requires:       python-babel >= 0.9.6
 Requires:       python-oauth2
 Requires:       python-dogpile-cache >= 0.5.0
@@ -217,6 +217,9 @@ fi
 %endif
 
 %changelog
+* Mon Oct 14 2013 Dan Prince <dprince@redhat.com> - 2013.2-0.9.b3
+- Require python-six 1.4.1
+
 * Tue Sep 10 2013 Dan Prince <dprince@redhat.com> - 2013.2-0.9.b3
 - Remove requirements files.
 - Drop python-oslo-config version requirement.
